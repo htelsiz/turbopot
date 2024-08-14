@@ -34,13 +34,14 @@ def run_server(host: str = typer.Option("127.0.0.1", help="Host to run the serve
 
 @cli.command()
 def generate_rap(
-    prompt: str = typer.Argument(..., help="Prompt for generating rap lyrics"),
+    subject: str = typer.Option(..., "--subject", help="Subject for generating rap lyrics"),
     voice: str = typer.Option("alloy", help="Voice to use for text-to-speech"),
     high_quality: bool = typer.Option(False, help="Use high-quality audio generation")
 ):
     """
     Generate rap lyrics and audio from the command line.
     """
+    prompt = f"Write a rap about: {subject}"
     lyrics, audio_stream = generate_spoken_audio(prompt, voice=voice, high_quality=high_quality)
     typer.echo(f"Generated rap lyrics:\n{lyrics}")
     
