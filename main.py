@@ -127,19 +127,8 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
         audio_buffer = io.BytesIO()
         ffplay_process = None
 
-        async def start_ffplay():
-            nonlocal ffplay_process
-            if ffplay_process:
-                ffplay_process.terminate()
-                await asyncio.sleep(0.1)
-            ffplay_process = subprocess.Popen(
-                ["ffplay", "-nodisp", "-autoexit", "-"],
-                stdin=subprocess.PIPE,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
-            )
-
-        try:
+        async def process_stream():
+            nonlocal content, audio_buffer, ffplay_process
             async for chunk_type, chunk in content_stream:
                 if chunk_type == "text":
                     content += chunk
@@ -148,24 +137,29 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
                     audio_buffer.write(chunk)
                     if ffplay_process is None:
                         typer.echo("\nPlaying generated content. Press Ctrl+C to stop.")
-                        await start_ffplay()
+                        ffplay_process = await asyncio.to_thread(start_ffplay)
                     if ffplay_process and ffplay_process.poll() is None:
                         try:
                             ffplay_process.stdin.write(chunk)
                             ffplay_process.stdin.flush()
                         except BrokenPipeError:
                             # ffplay process has ended, restart it
-                            await start_ffplay()
+                            ffplay_process = await asyncio.to_thread(start_ffplay)
                             ffplay_process.stdin.write(chunk)
                             ffplay_process.stdin.flush()
 
-        except asyncio.CancelledError:
-            typer.echo("\nContent generation cancelled.")
-        except Exception as e:
-            typer.echo(f"\nAn error occurred during content generation: {str(e)}")
-        finally:
-            if ffplay_process:
-                ffplay_process.terminate()
+        def start_ffplay():
+            return subprocess.Popen(
+                ["ffplay", "-nodisp", "-autoexit", "-"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+
+        await process_stream()
+
+        if ffplay_process:
+            ffplay_process.terminate()
 
         end_time = time.time()
         typer.echo(f"\nGenerated {content_type} content completed.")
