@@ -17,7 +17,7 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
     # Generate text response
     print(f"{Fore.BLUE}🐌💯 AI's putting on its thinking cap to write some fire lyrics... 🔥{Style.RESET_ALL}")
 
-def generate_story(prompt, genre="fantasy", length="short", model="gpt-4"):
+def generate_story(prompt, genre="fantasy", length="short", model="gpt-3.5-turbo"):
     print(f"{Fore.CYAN}🐌💯 Crafting a {length} {genre} story based on: '{prompt}' 🔥{Style.RESET_ALL}")
     print(f"{Fore.MAGENTA}Using model: {model} 🐌💯{Style.RESET_ALL}")
 
@@ -38,9 +38,10 @@ def generate_story(prompt, genre="fantasy", length="short", model="gpt-4"):
                     "messages": [
                         {"role": "system", "content": f"You are a creative assistant skilled in writing {length} {genre} stories. When given a prompt, respond with a story in the requested style."},
                         {"role": "user", "content": f"Write a {length} {genre} story based on this prompt: {prompt}"}
-                    ]
+                    ],
+                    "max_tokens": 1000 if length == "short" else 2000 if length == "medium" else 3000
                 },
-                timeout=30  # Add a timeout to prevent hanging
+                timeout=60  # Increase timeout to 60 seconds
             )
             chat_response.raise_for_status()
             generated_story = chat_response.json()["choices"][0]["message"]["content"].strip()

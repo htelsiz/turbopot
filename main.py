@@ -171,30 +171,33 @@ def generate_story(
 
         # Generate speech from the story
         typer.echo("Generating speech from the story...")
-        _, audio_stream = generate_spoken_audio(story, voice=voice, high_quality=high_quality)
-
-        # Save the audio stream to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
-            for chunk in audio_stream:
-                temp_file.write(chunk)
-
-        # Play the audio using ffplay
         try:
-            typer.echo("Playing generated story audio. Press Ctrl+C to stop.")
-            subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file.name], check=True)
-        except KeyboardInterrupt:
-            typer.echo("Playback stopped.")
-        except subprocess.CalledProcessError:
-            typer.echo("Error: ffplay is not installed or encountered an error.")
-        except Exception as e:
-            typer.echo(f"An error occurred during playback: {str(e)}")
-        finally:
-            if output:
-                audio_file = f"{output}.mp3"
-                os.rename(temp_file.name, audio_file)
-                typer.echo(f"Audio saved to {audio_file}")
-            else:
-                os.unlink(temp_file.name)
+            _, audio_stream = generate_spoken_audio(story, voice=voice, high_quality=high_quality)
+
+            # Save the audio stream to a temporary file
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
+                for chunk in audio_stream:
+                    temp_file.write(chunk)
+
+            # Play the audio using ffplay
+            try:
+                typer.echo("Playing generated story audio. Press Ctrl+C to stop.")
+                subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file.name], check=True)
+            except KeyboardInterrupt:
+                typer.echo("Playback stopped.")
+            except subprocess.CalledProcessError:
+                typer.echo("Error: ffplay is not installed or encountered an error.")
+            except Exception as e:
+                typer.echo(f"An error occurred during playback: {str(e)}")
+            finally:
+                if output:
+                    audio_file = f"{output}.mp3"
+                    os.rename(temp_file.name, audio_file)
+                    typer.echo(f"Audio saved to {audio_file}")
+                else:
+                    os.unlink(temp_file.name)
+        except Exception as audio_error:
+            typer.echo(f"Error generating or playing audio: {str(audio_error)}", err=True)
 
     except Exception as e:
         typer.echo(f"Error generating story: {str(e)}", err=True)
