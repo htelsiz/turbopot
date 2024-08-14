@@ -81,13 +81,35 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
     print("Starting audio playback...")
     show_streaming_processes()
     start_time = time.time()
-    subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
+    try:
+        print(f"Playing audio file: {temp_file}")
+        result = subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file], 
+                                stdout=subprocess.PIPE, 
+                                stderr=subprocess.PIPE, 
+                                text=True, 
+                                check=True)
+        print("FFplay output:")
+        print(result.stdout)
+        if result.stderr:
+            print("FFplay errors:")
+            print(result.stderr)
+    except subprocess.CalledProcessError as e:
+        print(f"Error during audio playback: {e}")
+        print("FFplay output:")
+        print(e.stdout)
+        print("FFplay errors:")
+        print(e.stderr)
+    
     print(f"Audio playback finished. Time taken: {time.time() - start_time:.2f} seconds")
     show_streaming_processes()
 
     # Clean up
-    os.remove(temp_file)
-    print(f"Temporary file {temp_file} removed.")
+    try:
+        os.remove(temp_file)
+        print(f"Temporary file {temp_file} removed.")
+    except Exception as e:
+        print(f"Error removing temporary file: {e}")
 
     return generated_text
 
@@ -106,11 +128,18 @@ def moderate_content(text):
 
 def show_streaming_processes():
     print("Current streaming processes:")
+    streaming_processes = []
     for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
             if 'ffplay' in proc.info['name'].lower() or 'ffmpeg' in proc.info['name'].lower():
-                print(f"PID: {proc.info['pid']}, Name: {proc.info['name']}, Command: {' '.join(proc.info['cmdline'])}")
+                streaming_processes.append(f"PID: {proc.info['pid']}, Name: {proc.info['name']}, Command: {' '.join(proc.info['cmdline'])}")
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
+    
+    if streaming_processes:
+        for process in streaming_processes:
+            print(process)
+    else:
+        print("No streaming processes found.")
     print()
 
