@@ -120,57 +120,50 @@ import time
 import logging
 
 # Set up logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-async def async_generate_content(prompt, content_type, voice, high_quality, output, max_length):
-    logger.info(f"Starting content generation with prompt: {prompt}")
+async def async_generate_content(prompt, content_type, voice, high_quality, output, max_length, debug):
+    if debug:
+        logger.setLevel(logging.DEBUG)
+    
     try:
         start_time = time.time()
-        logger.debug("Initializing content stream")
         content_stream = generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality, max_length=max_length)
         
         content = ""
         audio_buffer = io.BytesIO()
 
-        logger.debug("Starting to process content stream")
         async for chunk_type, chunk in content_stream:
             if chunk_type == "text":
                 content += chunk
                 print(chunk, end='', flush=True)
-                logger.debug(f"Received text chunk: {chunk}")
             elif chunk_type == "audio":
                 audio_buffer.write(chunk)
-                logger.debug(f"Received audio chunk of size: {len(chunk)} bytes")
 
         end_time = time.time()
-        logger.info(f"Generated {content_type} content completed in {end_time - start_time:.2f} seconds")
         typer.echo(f"\nGenerated {content_type} content completed.")
         typer.echo(f"Total generation time: {end_time - start_time:.2f} seconds")
 
         # Save audio if output is specified
         if output:
-            logger.info(f"Saving audio to file: {output}")
             with open(output, 'wb') as f:
                 f.write(audio_buffer.getvalue())
             typer.echo(f"Audio saved to {output}")
         else:
             # Play audio using ffplay
-            logger.info("Attempting to play audio using ffplay")
             try:
                 typer.echo("Playing generated content...")
                 subprocess.run(["ffplay", "-nodisp", "-autoexit", "-"], input=audio_buffer.getvalue(), check=True, capture_output=True)
-                logger.debug("Audio playback completed successfully")
             except subprocess.CalledProcessError:
-                logger.error("Error: ffplay is not installed or encountered an error")
                 typer.echo("Error: ffplay is not installed or encountered an error.")
 
     except asyncio.TimeoutError:
-        logger.error("Error: Request timed out")
         typer.echo("Error: Request timed out")
     except Exception as e:
-        logger.error(f"An error occurred: {str(e)}", exc_info=True)
         typer.echo(f"An error occurred: {str(e)}")
+        if debug:
+            logger.exception("Detailed error information:")
 
 @cli.command()
 def generate_content(
@@ -179,7 +172,8 @@ def generate_content(
     voice: str = typer.Option("alloy", help="Voice to use for text-to-speech 🐌💯"),
     high_quality: bool = typer.Option(False, help="Use high-quality audio generation 🐌💯"),
     output: str = typer.Option(None, help="File path to save the generated audio 🐌💯"),
-    max_length: Optional[int] = typer.Option(None, "--max-length", help="Maximum number of characters for the generated content 🐌💯")
+    max_length: Optional[int] = typer.Option(None, "--max-length", help="Maximum number of characters for the generated content 🐌💯"),
+    debug: bool = typer.Option(False, "--debug", help="Enable debug mode for verbose logging 🐌💯")
 ):
     """
     Generate content and audio from the command line. 🐌💯🔥
