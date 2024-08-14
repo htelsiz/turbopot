@@ -138,6 +138,7 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL
             )
+
         audio_queue = asyncio.Queue()
 
         async def play_audio():
@@ -156,30 +157,22 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
                         ffplay_process.stdin.flush()
                 audio_queue.task_done()
 
-        async def start_ffplay():
-            nonlocal ffplay_process
-            if ffplay_process:
-                ffplay_process.terminate()
-                await asyncio.sleep(0.1)
-            ffplay_process = subprocess.Popen(
-                ["ffplay", "-nodisp", "-autoexit", "-"],
-                stdin=subprocess.PIPE,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
-            )
-
         audio_player = asyncio.create_task(play_audio())
 
-        async for chunk_type, chunk in content_stream:
-            if chunk_type == "text":
-                content += chunk
-                print(chunk, end='', flush=True)
-            elif chunk_type == "audio":
-                audio_buffer.write(chunk)
-                if ffplay_process is None:
-                    typer.echo("\nPlaying generated content. Press Ctrl+C to stop.")
-                    await start_ffplay()
-                await audio_queue.put(chunk)
+        try:
+            async for chunk_type, chunk in content_stream:
+                if chunk_type == "text":
+                    content += chunk
+                    print(chunk, end='', flush=True)
+                elif chunk_type == "audio":
+                    audio_buffer.write(chunk)
+                    if ffplay_process is None:
+                        typer.echo("\nPlaying generated content. Press Ctrl+C to stop.")
+                        await start_ffplay()
+                    await audio_queue.put(chunk)
+        except Exception as e:
+            typer.echo(f"\nAn error occurred during content generation: {str(e)}")
+            return
 
         await audio_queue.put(None)  # Signal the end of audio
         await audio_player
