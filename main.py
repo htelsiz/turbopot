@@ -125,41 +125,13 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
         
         content = ""
         audio_buffer = io.BytesIO()
-        ffplay_process = None
 
-        async def process_stream():
-            nonlocal content, audio_buffer, ffplay_process
-            async for chunk_type, chunk in content_stream:
-                if chunk_type == "text":
-                    content += chunk
-                    print(chunk, end='', flush=True)
-                elif chunk_type == "audio":
-                    audio_buffer.write(chunk)
-                    if ffplay_process is None:
-                        typer.echo("\nPlaying generated content. Press Ctrl+C to stop.")
-                        ffplay_process = await asyncio.to_thread(start_ffplay)
-                    if ffplay_process and ffplay_process.poll() is None:
-                        try:
-                            ffplay_process.stdin.write(chunk)
-                            ffplay_process.stdin.flush()
-                        except BrokenPipeError:
-                            # ffplay process has ended, restart it
-                            ffplay_process = await asyncio.to_thread(start_ffplay)
-                            ffplay_process.stdin.write(chunk)
-                            ffplay_process.stdin.flush()
-
-        def start_ffplay():
-            return subprocess.Popen(
-                ["ffplay", "-nodisp", "-autoexit", "-"],
-                stdin=subprocess.PIPE,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
-            )
-
-        await process_stream()
-
-        if ffplay_process:
-            ffplay_process.terminate()
+        async for chunk_type, chunk in content_stream:
+            if chunk_type == "text":
+                content += chunk
+                print(chunk, end='', flush=True)
+            elif chunk_type == "audio":
+                audio_buffer.write(chunk)
 
         end_time = time.time()
         typer.echo(f"\nGenerated {content_type} content completed.")
@@ -170,11 +142,14 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
             with open(output, 'wb') as f:
                 f.write(audio_buffer.getvalue())
             typer.echo(f"Audio saved to {output}")
+        else:
+            # Play audio using ffplay
+            try:
+                typer.echo("Playing generated content...")
+                subprocess.run(["ffplay", "-nodisp", "-autoexit", "-"], input=audio_buffer.getvalue(), check=True, capture_output=True)
+            except subprocess.CalledProcessError:
+                typer.echo("Error: ffplay is not installed or encountered an error.")
 
-    except KeyboardInterrupt:
-        typer.echo("Playback stopped.")
-    except subprocess.CalledProcessError:
-        typer.echo("Error: ffplay is not installed or encountered an error.")
     except asyncio.TimeoutError:
         typer.echo("Error: Request timed out")
     except Exception as e:
