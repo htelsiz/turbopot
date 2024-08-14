@@ -126,6 +126,18 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
         content = ""
         audio_buffer = io.BytesIO()
         ffplay_process = None
+
+        async def start_ffplay():
+            nonlocal ffplay_process
+            if ffplay_process:
+                ffplay_process.terminate()
+                await asyncio.sleep(0.1)
+            ffplay_process = subprocess.Popen(
+                ["ffplay", "-nodisp", "-autoexit", "-"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
         audio_queue = asyncio.Queue()
 
         async def play_audio():
