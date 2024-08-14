@@ -11,10 +11,14 @@ Repository: https://github.com/htelsiz/turbopot.git
 - 🎚️ High-quality audio generation option
 - 🖥️ Command-line interface for quick generation
 - 🌐 Web API for integration into other applications
+- 🎙️ Audio transcription from files or microphone input
 
 ## Prerequisites
 
-Before using TurboPot, you need to have FFmpeg installed on your system for playing the generated audio content.
+Before using TurboPot, you need to have the following installed on your system:
+
+1. FFmpeg: For playing and processing audio content.
+2. PortAudio: Required for microphone input functionality.
 
 ### Installing FFmpeg
 
@@ -31,6 +35,21 @@ brew install ffmpeg
 #### On Linux (Ubuntu/Debian):
 ```
 sudo apt update && sudo apt install ffmpeg
+```
+
+### Installing PortAudio
+
+#### On macOS:
+```
+brew install portaudio
+```
+
+#### On Windows:
+PortAudio is included with the Python package `sounddevice`, which is listed in the requirements.txt file.
+
+#### On Linux (Ubuntu/Debian):
+```
+sudo apt update && sudo apt install libportaudio2
 ```
 
 ## 🛠️ Installation
@@ -67,6 +86,21 @@ Options:
 - `--voice`: Voice for text-to-speech (default: "alloy")
 - `--high-quality`: Use high-quality audio generation (flag)
 - `--output`: Save the generated audio to a file
+- `--max-length`: Maximum number of characters for the generated content
+
+Transcribe audio file:
+```
+python main.py transcribe-audio /path/to/your/audio/file.mp3
+```
+
+Record audio and transcribe:
+```
+python main.py record-and-transcribe --duration 10
+```
+
+Options:
+- `--duration`: Duration of recording in seconds (default: 5)
+- `--sample_rate`: Sample rate of the recording (default: 44100)
 
 ### Web API
 
@@ -76,6 +110,10 @@ python main.py run-server
 ```
 
 Access the API documentation at `http://127.0.0.1:8000/docs`
+
+Endpoints:
+- `/generate_content`: Generate content and audio
+- `/transcribe`: Transcribe an uploaded audio file
 
 ## 🧪 Testing
 
