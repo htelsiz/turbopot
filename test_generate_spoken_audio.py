@@ -10,5 +10,3 @@ def test_generate_spoken_audio():
     print(f"Audio file created at: {output_file}")
 
 
-if __name__ == "__main__":
-    test_generate_spoken_audio()
