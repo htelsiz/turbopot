@@ -9,13 +9,13 @@ def generate_spoken_audio(text, voice="alloy", model="tts-1"):
     api_key = os.getenv("OPENAI_API_KEY")
     openai.api_key = api_key
 
-    response = openai.Audio.create(
+    response = openai.Audio.transcribe(
         model=model,
         voice=voice,
         input=text
     )
 
-    audio_stream = response['audio']
+    audio_stream = response['data']
 
     # Play the audio stream using sounddevice
     sd.play(audio_stream, samplerate=22050)
