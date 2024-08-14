@@ -212,44 +212,77 @@ def transcribe_audio(
     except Exception as e:
         typer.echo(f"An error occurred: {str(e)}")
 
+import numpy as np
+import sounddevice as sd
+from scipy.io import wavfile
+import tempfile
+
 @cli.command()
 def record_and_transcribe(
-    duration: int = typer.Option(5, help="Duration of recording in seconds 🐌💯"),
-    sample_rate: int = typer.Option(44100, help="Sample rate of the recording 🐌💯")
+    max_duration: int = typer.Option(30, help="Maximum duration of recording in seconds 🐌💯"),
+    sample_rate: int = typer.Option(44100, help="Sample rate of the recording 🐌💯"),
+    silence_threshold: float = typer.Option(0.01, help="Silence threshold (0-1) 🐌💯"),
+    silence_duration: float = typer.Option(2.0, help="Duration of silence to stop recording (seconds) 🐌💯")
 ):
     """
-    Record audio from the laptop's microphone and transcribe it. 🐌💯🔥
+    Record audio from the laptop's microphone and transcribe it, stopping when silence is detected. 🐌💯🔥
 
-    This command records audio for the specified duration, saves it as a WAV file,
-    and then transcribes it using OpenAI's Whisper model.
+    This command records audio until silence is detected or the maximum duration is reached,
+    saves it as a WAV file, and then transcribes it using OpenAI's Whisper model.
 
     Options:
-    --duration: The duration of the recording in seconds. Default is 5 seconds. 🐌💯
+    --max_duration: The maximum duration of the recording in seconds. Default is 30 seconds. 🐌💯
     --sample_rate: The sample rate of the recording. Default is 44100 Hz. 🐌💯
+    --silence_threshold: The threshold for detecting silence (0-1). Default is 0.01. 🐌💯
+    --silence_duration: The duration of silence to stop recording. Default is 2.0 seconds. 🐌💯
 
     Example usage:
-    $ python main.py record-and-transcribe --duration 10 🐌💯🔥
+    $ python main.py record-and-transcribe --max_duration 60 --silence_threshold 0.02 🐌💯🔥
     """
-    typer.echo(f"Recording for {duration} seconds... 🎙️")
-    recording = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1)
-    sd.wait()
-    typer.echo("Recording finished. Processing... 🐌💯")
+    typer.echo(f"Recording... (max {max_duration} seconds, press Ctrl+C to stop) 🎙️")
+    
+    recording = []
+    silence_samples = int(silence_duration * sample_rate)
+    is_silent = lambda audio: np.max(np.abs(audio)) < silence_threshold
 
-    # Normalize the recording to 16-bit integers
-    recording = (recording * 32767).astype(np.int16)
-
-    # Save as WAV file
-    temp_file = "temp_recording.wav"
-    write(temp_file, sample_rate, recording)
+    def callback(indata, frames, time, status):
+        if status:
+            typer.echo(f"Error in callback: {status}")
+        recording.append(indata.copy())
+        if len(recording) * frames > silence_samples and is_silent(np.concatenate(recording[-int(silence_samples/frames):])):
+            raise sd.CallbackStop()
 
     try:
-        transcript = asyncio.run(transcribe_audio_file(temp_file))
+        with sd.InputStream(samplerate=sample_rate, channels=1, callback=callback):
+            sd.sleep(int(max_duration * 1000))
+    except sd.CallbackStop:
+        pass
+    except KeyboardInterrupt:
+        typer.echo("\nRecording stopped by user.")
+    
+    if not recording:
+        typer.echo("No audio recorded.")
+        return
+
+    typer.echo("Recording finished. Processing... 🐌💯")
+
+    # Concatenate and normalize the recording
+    audio = np.concatenate(recording)
+    audio = (audio * 32767).astype(np.int16)
+
+    # Save as WAV file
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
+        wavfile.write(temp_file.name, sample_rate, audio)
+        temp_filename = temp_file.name
+
+    try:
+        transcript = asyncio.run(transcribe_audio_file(temp_filename))
         typer.echo(f"Transcription: {transcript}")
     except Exception as e:
         typer.echo(f"An error occurred during transcription: {str(e)}")
     finally:
         # Clean up the temporary file
-        os.remove(temp_file)
+        os.remove(temp_filename)
 
 @app.post("/transcribe")
 async def transcribe_audio_endpoint(file: UploadFile = File(...)):
