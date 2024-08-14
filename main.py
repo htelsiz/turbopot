@@ -111,14 +111,24 @@ def generate_content(
     prompt = f"Create {content_type} content about: {subject}"
     try:
         start_time = time.time()
-        content, audio_stream = asyncio.run(generate_spoken_content(prompt, content_type=content_type, voice=voice, high_quality=high_quality))
+        content_stream = asyncio.run(generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality))
+        
+        content = ""
+        audio_chunks = []
+        async for chunk in content_stream:
+            if isinstance(chunk, str):
+                content += chunk
+            else:
+                audio_chunks.append(chunk)
+        
         end_time = time.time()
         typer.echo(f"Generated {content_type} content:\n{content}")
         typer.echo(f"Total generation time: {end_time - start_time:.2f} seconds")
         
         # Save the audio stream to a temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
-            temp_file.write(audio_stream)
+            for chunk in audio_chunks:
+                temp_file.write(chunk)
         
         # Play the audio using ffplay
         try:
