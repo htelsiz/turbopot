@@ -44,7 +44,8 @@ class ContentGenerator:
                 voice=voice,
                 input=text
             )
-            return speech_response.iter_bytes(chunk_size=1024)
+            async for chunk in speech_response.iter_bytes(chunk_size=1024):
+                yield chunk
         except Exception as e:
             print(f"{Fore.RED}Error generating speech: {str(e)}{Style.RESET_ALL}")
             raise
