@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
-from api import generate_spoken_audio
+from api import generate_spoken_audio, generate_story
 import typer
 import uvicorn
 import subprocess
@@ -15,6 +15,11 @@ class RapRequest(BaseModel):
     prompt: str
     voice: str = "alloy"
     high_quality: bool = False
+
+class StoryRequest(BaseModel):
+    prompt: str
+    genre: str = "fantasy"
+    length: str = "short"
 
 @app.post("/generate_rap")
 async def generate_rap(request: RapRequest):
@@ -36,6 +41,29 @@ async def generate_rap(request: RapRequest):
     try:
         lyrics, audio_stream = generate_spoken_audio(request.prompt, voice=request.voice, high_quality=request.high_quality)
         return StreamingResponse(audio_stream, media_type="audio/mpeg", headers={"Content-Disposition": "attachment; filename=generated_rap.mp3"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/generate_story")
+async def generate_story_endpoint(request: StoryRequest):
+    """
+    Generate a story based on the provided prompt and parameters.
+
+    Parameters:
+    - request: StoryRequest object containing:
+        - prompt: str, the subject or theme for the story
+        - genre: str, the genre of the story (default: "fantasy")
+        - length: str, the length of the story (default: "short")
+
+    Returns:
+    - JSONResponse: Generated story text
+
+    Raises:
+    - HTTPException: If an error occurs during generation
+    """
+    try:
+        story = generate_story(request.prompt, genre=request.genre, length=request.length)
+        return JSONResponse(content={"story": story})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -102,6 +130,37 @@ def generate_rap(
         typer.echo(f"An error occurred: {str(e)}")
     finally:
         os.unlink(temp_file.name)
+
+@cli.command()
+def generate_story(
+    prompt: str = typer.Option(..., "--prompt", help="Prompt for generating the story"),
+    genre: str = typer.Option("fantasy", help="Genre of the story"),
+    length: str = typer.Option("short", help="Length of the story (short, medium, long)"),
+    output: str = typer.Option(None, help="File path to save the generated story")
+):
+    """
+    Generate a story from the command line.
+
+    This command creates a story based on the given prompt, genre, and length.
+    The generated story will be displayed in the console and can optionally be saved to a file.
+
+    Options:
+    --prompt: The prompt or theme for the story (required).
+    --genre: The genre of the story. Default is fantasy.
+    --length: The length of the story (short, medium, long). Default is short.
+    --output: File path to save the generated story. If not provided, story will only be displayed.
+
+    Example usage:
+    $ python main.py generate-story --prompt "A magical forest" --genre fantasy --length medium
+    $ python main.py generate-story --prompt "A detective in space" --genre scifi --output story.txt
+    """
+    story = generate_story(prompt, genre=genre, length=length)
+    typer.echo(f"Generated story:\n\n{story}")
+
+    if output:
+        with open(output, 'w') as f:
+            f.write(story)
+        typer.echo(f"Story saved to {output}")
 
 if __name__ == "__main__":
     cli()
