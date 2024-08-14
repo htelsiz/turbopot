@@ -1,7 +1,7 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from api import generate_spoken_audio, generate_story
+from api import generate_spoken_audio
 import typer
 import uvicorn
 import subprocess
@@ -17,10 +17,6 @@ class RapRequest(BaseModel):
     voice: str = "alloy"
     high_quality: bool = False
 
-class StoryRequest(BaseModel):
-    prompt: str
-    genre: str = "fantasy"
-    length: str = "short"
 
 @app.post("/generate_rap")
 async def generate_rap(request: RapRequest):
@@ -45,28 +41,6 @@ async def generate_rap(request: RapRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/generate_story")
-async def generate_story_endpoint(request: StoryRequest):
-    """
-    Generate a story based on the provided prompt and parameters.
-
-    Parameters:
-    - request: StoryRequest object containing:
-        - prompt: str, the subject or theme for the story
-        - genre: str, the genre of the story (default: "fantasy")
-        - length: str, the length of the story (default: "short")
-
-    Returns:
-    - JSONResponse: Generated story text
-
-    Raises:
-    - HTTPException: If an error occurs during generation
-    """
-    try:
-        story = generate_story(request.prompt, genre=request.genre, length=request.length)
-        return JSONResponse(content={"story": story})
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 @cli.command()
 def run_server(host: str = typer.Option("127.0.0.1", help="Host to run the server on"),
@@ -132,79 +106,6 @@ def generate_rap(
     finally:
         os.unlink(temp_file.name)
 
-@cli.command()
-def generate_story(
-    prompt: str = typer.Option(..., "--prompt", help="Prompt for generating the story 🐌💯"),
-    genre: str = typer.Option("fantasy", help="Genre of the story 🐌💯"),
-    length: str = typer.Option("short", help="Length of the story (short, medium, long) 🐌💯"),
-    voice: str = typer.Option("alloy", help="Voice to use for text-to-speech 🐌💯"),
-    high_quality: bool = typer.Option(False, help="Use high-quality audio generation 🐌💯"),
-    output: str = typer.Option(None, help="File path to save the generated story and audio 🐌💯")
-):
-    """
-    Generate a story from the command line and optionally convert it to speech. 🐌💯🔥
-
-    This command creates a story based on the given prompt, genre, and length.
-    The generated story will be displayed in the console and can optionally be saved to a file and converted to speech.
-
-    Options:
-    --prompt: The prompt or theme for the story (required). 🐌💯
-    --genre: The genre of the story. Default is fantasy. 🐌💯
-    --length: The length of the story (short, medium, long). Default is short. 🐌💯
-    --voice: The voice to use for text-to-speech. Options include alloy, echo, fable, onyx, nova, shimmer. Default is alloy. 🐌💯
-    --high-quality: Flag to enable high-quality audio generation. Default is False. 🐌💯
-    --output: File path to save the generated story and audio. If not provided, story will only be displayed and audio played. 🐌💯
-
-    Example usage:
-    $ python main.py generate-story --prompt "A magical forest" --genre fantasy --length medium --voice nova --high-quality
-    $ python main.py generate-story --prompt "A detective in space" --genre scifi --output story_output
-    """
-    try:
-        story = generate_story(prompt, genre=genre, length=length)
-        typer.echo(f"Generated story:\n\n{story}")
-
-        if output:
-            story_file = f"{output}.txt"
-            with open(story_file, 'w') as f:
-                f.write(story)
-            typer.echo(f"Story saved to {story_file}")
-
-        # Generate speech from the story
-        typer.echo("Generating speech from the story...")
-        try:
-            _, audio_stream = generate_spoken_audio(story, voice=voice, high_quality=high_quality)
-
-            # Save the audio stream to a temporary file
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
-                for chunk in audio_stream:
-                    temp_file.write(chunk)
-
-            # Play the audio using ffplay
-            try:
-                typer.echo("Playing generated story audio. Press Ctrl+C to stop.")
-                subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file.name], check=True)
-            except KeyboardInterrupt:
-                typer.echo("Playback stopped.")
-            except subprocess.CalledProcessError:
-                typer.echo("Error: ffplay is not installed or encountered an error.")
-            except Exception as e:
-                typer.echo(f"An error occurred during playback: {str(e)}")
-            finally:
-                if output:
-                    audio_file = f"{output}.mp3"
-                    os.rename(temp_file.name, audio_file)
-                    typer.echo(f"Audio saved to {audio_file}")
-                else:
-                    os.unlink(temp_file.name)
-        except Exception as audio_error:
-            typer.echo(f"Error generating or playing audio: {str(audio_error)}", err=True)
-
-    except Exception as e:
-        typer.echo(f"Error generating story: {str(e)}", err=True)
-        typer.echo(f"Error details: {type(e).__name__}", err=True)
-        typer.echo(f"Error args: {e.args}", err=True)
-        typer.echo("Please check your API key and internet connection, then try again.", err=True)
-        raise typer.Exit(code=1)
 
 if __name__ == "__main__":
     cli()

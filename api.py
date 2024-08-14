@@ -17,47 +17,6 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
     # Generate text response
     print(f"{Fore.BLUE}🐌💯 AI's putting on its thinking cap to write some fire lyrics... 🔥{Style.RESET_ALL}")
 
-def generate_story(prompt, genre="fantasy", length="short", model="gpt-3.5-turbo"):
-    print(f"{Fore.CYAN}🐌💯 Crafting a {length} {genre} story based on: '{prompt}' 🔥{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}Using model: {model} 🐌💯{Style.RESET_ALL}")
-
-    # Generate story
-    print(f"{Fore.BLUE}🐌💯 AI's weaving a tale... 🔥{Style.RESET_ALL}")
-    
-    max_retries = 3
-    for attempt in range(max_retries):
-        try:
-            chat_response = requests.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {OPENAI_API_KEY}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": model,
-                    "messages": [
-                        {"role": "system", "content": f"You are a creative assistant skilled in writing {length} {genre} stories. When given a prompt, respond with a story in the requested style."},
-                        {"role": "user", "content": f"Write a {length} {genre} story based on this prompt: {prompt}"}
-                    ],
-                    "max_tokens": 1000 if length == "short" else 2000 if length == "medium" else 3000
-                },
-                timeout=60  # Increase timeout to 60 seconds
-            )
-            chat_response.raise_for_status()
-            generated_story = chat_response.json()["choices"][0]["message"]["content"].strip()
-            print(f"{Fore.GREEN}🐌💯 Story generated successfully!{Style.RESET_ALL}")
-            return generated_story
-        except requests.exceptions.RequestException as e:
-            print(f"{Fore.RED}🐌💯 Error generating story (attempt {attempt + 1}/{max_retries}): {e}{Style.RESET_ALL}")
-            if attempt == max_retries - 1:
-                raise Exception(f"Failed to generate story after {max_retries} attempts. Last error: {str(e)}")
-        except Exception as e:
-            print(f"{Fore.RED}🐌💯 Unexpected error (attempt {attempt + 1}/{max_retries}): {e}{Style.RESET_ALL}")
-            if attempt == max_retries - 1:
-                raise Exception(f"Unexpected error after {max_retries} attempts. Last error: {str(e)}")
-    
-    # If we've exhausted all retries, raise a final exception
-    raise Exception("Failed to generate story after all retry attempts.")
 
 def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False):
     print(f"{Fore.CYAN}🐌💯 Yo, we're about to drop some sick beats for: '{text}'{Style.RESET_ALL}")
