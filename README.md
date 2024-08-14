@@ -1,6 +1,6 @@
-# TurboPot 🐌💯🔥 - CLI tool & server with ambiguous capabilities
+# turbopot 🐌💯🔥 - CLI tool & server with ambiguous capabilities (inspired by Turbo the Snail)
 
-TurboPot is a versatile tool that offers both a command-line interface and a web server with ambiguous capabilities. It provides a range of functionalities that can be easily integrated into various projects.
+turbopot is a versatile tool that offers both a command-line interface and a web server with ambiguous capabilities. It provides a range of functionalities that can be easily integrated into various projects.
 
 Repository: https://github.com/htelsiz/turbopot.git
 
