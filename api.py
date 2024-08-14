@@ -14,66 +14,60 @@ class ContentGenerator:
     def __init__(self, api_key):
         self.client = AsyncOpenAI(api_key=api_key)
 
-    async def generate_text(self, prompt, content_type="general", model="gpt-4"):
+    async def generate_text_stream(self, prompt, content_type="general", model="gpt-4"):
         print(f"{Fore.BLUE}🐌💯 AI's putting on its thinking cap to create some amazing {content_type} content... 🔥{Style.RESET_ALL}")
         try:
-            chat_response = await asyncio.wait_for(
-                self.client.chat.completions.create(
-                    model=model,
-                    messages=[
-                        {"role": "system", "content": f"You are a creative assistant skilled in generating various types of content. You are now tasked with creating {content_type} content. Respond with appropriate content in the style and format typical for {content_type}."},
-                        {"role": "user", "content": f"Generate {content_type} content based on this prompt: {prompt}"}
-                    ]
-                ),
-                timeout=30  # 30 seconds timeout
+            stream = await self.client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": f"You are a creative assistant skilled in generating various types of content. You are now tasked with creating {content_type} content. Respond with appropriate content in the style and format typical for {content_type}."},
+                    {"role": "user", "content": f"Generate {content_type} content based on this prompt: {prompt}"}
+                ],
+                stream=True
             )
-            return chat_response.choices[0].message.content.strip()
-        except asyncio.TimeoutError:
-            print(f"{Fore.RED}Error: API call timed out{Style.RESET_ALL}")
-            raise
+            return stream
         except Exception as e:
             print(f"{Fore.RED}Error generating text: {str(e)}{Style.RESET_ALL}")
             raise
 
-    async def generate_speech(self, text, voice="alloy", high_quality=False):
+    async def generate_speech_stream(self, text, voice="alloy", high_quality=False):
         print("Generating speech from text...")
         tts_model = "tts-1-hd" if high_quality else "tts-1"
         try:
-            speech_response = await asyncio.wait_for(
-                self.client.audio.speech.create(
-                    model=tts_model,
-                    voice=voice,
-                    input=text
-                ),
-                timeout=30  # 30 seconds timeout
+            speech_response = await self.client.audio.speech.create(
+                model=tts_model,
+                voice=voice,
+                input=text
             )
-            return speech_response.content
-        except asyncio.TimeoutError:
-            print(f"{Fore.RED}Error: API call timed out{Style.RESET_ALL}")
-            raise
+            return speech_response.iter_bytes(chunk_size=1024)
         except Exception as e:
             print(f"{Fore.RED}Error generating speech: {str(e)}{Style.RESET_ALL}")
             raise
 
-    async def generate_spoken_content(self, text, content_type="general", voice="alloy", model="gpt-4", high_quality=False):
+    async def generate_spoken_content_stream(self, text, content_type="general", voice="alloy", model="gpt-4", high_quality=False):
         print(f"{Fore.CYAN}🐌💯 We're about to create some amazing {content_type} content for: '{text}'{Style.RESET_ALL}")
         print(f"{Fore.MAGENTA}Using voice: {voice}, model: {model}, high quality: {high_quality} 🐌💯{Style.RESET_ALL}")
 
         start_time = time.time()
-        text_task = asyncio.create_task(self.generate_text(text, content_type, model))
-        generated_text, audio_content = await asyncio.gather(
-            text_task,
-            self.generate_speech(await text_task, voice, high_quality)
-        )
-        end_time = time.time()
+        text_stream = await self.generate_text_stream(text, content_type, model)
+        
+        generated_text = ""
+        async for chunk in text_stream:
+            if chunk.choices[0].delta.content is not None:
+                generated_text += chunk.choices[0].delta.content
+                yield chunk.choices[0].delta.content
 
-        print(f"Generated content:\n{generated_text}\n")
-        print(f"{Fore.GREEN}🐌💯 Content audio generated and ready to stream 🔥{Style.RESET_ALL}")
+        print(f"\nGenerated content:\n{generated_text}\n")
+        
+        speech_stream = await self.generate_speech_stream(generated_text, voice, high_quality)
+        async for chunk in speech_stream:
+            yield chunk
+
+        end_time = time.time()
+        print(f"{Fore.GREEN}🐌💯 Content audio generated and streamed 🔥{Style.RESET_ALL}")
         print(f"Total generation time: {end_time - start_time:.2f} seconds")
 
-        return generated_text, audio_content
-
-async def generate_spoken_content(text, content_type="general", voice="alloy", model="gpt-4", high_quality=False):
+async def generate_spoken_content_stream(text, content_type="general", voice="alloy", model="gpt-4", high_quality=False):
     generator = ContentGenerator(os.getenv("OPENAI_API_KEY"))
-    return await generator.generate_spoken_content(text, content_type, voice, model, high_quality)
+    return generator.generate_spoken_content_stream(text, content_type, voice, model, high_quality)
 

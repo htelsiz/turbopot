@@ -44,15 +44,20 @@ async def generate_content(request: ContentRequest):
     """
     try:
         start_time = time.time()
-        content, audio_stream = await generate_spoken_content(
+        content_stream = generate_spoken_content_stream(
             request.prompt,
             content_type=request.content_type,
             voice=request.voice,
             high_quality=request.high_quality
         )
-        end_time = time.time()
-        print(f"Total API processing time: {end_time - start_time:.2f} seconds")
-        return StreamingResponse(iter([audio_stream]), media_type="audio/mpeg", headers={"Content-Disposition": "attachment; filename=generated_content.mp3"})
+
+        async def stream_generator():
+            async for chunk in content_stream:
+                yield chunk
+            end_time = time.time()
+            print(f"Total API processing time: {end_time - start_time:.2f} seconds")
+
+        return StreamingResponse(stream_generator(), media_type="audio/mpeg", headers={"Content-Disposition": "attachment; filename=generated_content.mp3"})
     except asyncio.TimeoutError:
         raise HTTPException(status_code=504, detail="Request timed out")
     except Exception as e:
