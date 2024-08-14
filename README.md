@@ -1,6 +1,6 @@
-# TurboPot 🎤🤖📚 - AI Rap & Story Generator
+# TurboPot 🎤🤖📚🐌💯 - AI Rap & Story Generator
 
-## 🚀 Quick Start
+## 🚀🐌 Quick Start
 
 1. Clone & install:
    ```
@@ -19,13 +19,13 @@
    python main.py generate-story --prompt "Space pirates" --genre "scifi" --length "short"
    ```
 
-## 🎵 Generate Rap
+## 🎵🐌💯 Generate Rap
 
 ```
 python main.py generate-rap --subject "Tacos" --voice "nova" --high-quality
 ```
 
-## 🌐 Web API
+## 🌐🐌💯 Web API
 
 Start server:
 ```
@@ -38,14 +38,14 @@ Visit: http://127.0.0.1:8000/docs
 - Story: `--prompt`, `--genre`, `--length`
 - Rap: `--subject`, `--voice`, `--high-quality`, `--output`
 
-## 🎉 Features
+## 🎉🐌💯 Features
 
-- AI-powered rap & story generation
-- Text-to-speech with cool voices
-- Web API & CLI
+- AI-powered rap & story generation 🐌
+- Text-to-speech with cool voices 💯
+- Web API & CLI 🐌💯
 
-## 📝 License
+## 📝🐌 License
 
 [MIT License](LICENSE)
 
-Need help? Just ask! 😊
+Need help? Just ask! 😊🐌💯

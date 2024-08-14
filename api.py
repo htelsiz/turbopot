@@ -11,18 +11,18 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False):
-    print(f"{Fore.CYAN}🎤 Yo, we're about to drop some sick beats for: '{text}'{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}Using voice: {voice}, model: {model}, high quality: {high_quality}{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}🎤🐌 Yo, we're about to drop some sick beats for: '{text}' 💯{Style.RESET_ALL}")
+    print(f"{Fore.MAGENTA}Using voice: {voice}, model: {model}, high quality: {high_quality} 🐌💯{Style.RESET_ALL}")
 
     # Generate text response
-    print(f"{Fore.BLUE}🧠 AI's putting on its thinking cap to write some fire lyrics...{Style.RESET_ALL}")
+    print(f"{Fore.BLUE}🧠🐌 AI's putting on its thinking cap to write some fire lyrics... 💯{Style.RESET_ALL}")
 
 def generate_story(prompt, genre="fantasy", length="short", model="gpt-4"):
-    print(f"{Fore.CYAN}📖 Crafting a {length} {genre} story based on: '{prompt}'{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}Using model: {model}{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}📖🐌 Crafting a {length} {genre} story based on: '{prompt}' 💯{Style.RESET_ALL}")
+    print(f"{Fore.MAGENTA}Using model: {model} 🐌💯{Style.RESET_ALL}")
 
     # Generate story
-    print(f"{Fore.BLUE}🧠 AI's weaving a tale...{Style.RESET_ALL}")
+    print(f"{Fore.BLUE}🧠🐌 AI's weaving a tale... 💯{Style.RESET_ALL}")
     chat_response = requests.post(
         "https://api.openai.com/v1/chat/completions",
         headers={
