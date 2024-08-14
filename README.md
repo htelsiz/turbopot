@@ -1,10 +1,10 @@
-# TurboPot 🐌💯🔥 - AI Rap Generator
+# TurboPot 🐌💯🔥 - AI Content Generator
 
-TurboPot is an innovative AI-powered rap generator that creates custom rap lyrics and converts them to speech using various voices. It offers both a command-line interface and a web API for easy integration into your projects.
+TurboPot is an innovative AI-powered content generator that creates custom content and converts it to speech using various voices. It offers both a command-line interface and a web API for easy integration into your projects.
 
 ## 🚀 Features
 
-- 🎵 AI-powered rap lyrics generation
+- 📝 AI-powered content generation for various types (e.g., blogs, poems, stories)
 - 🗣️ Text-to-speech conversion with multiple voice options
 - 🎚️ High-quality audio generation option
 - 🖥️ Command-line interface for quick generation
@@ -33,13 +33,14 @@ TurboPot is an innovative AI-powered rap generator that creates custom rap lyric
 
 ### Command-line Interface
 
-Generate a rap:
+Generate content:
 ```
-python main.py generate-rap --subject "Artificial Intelligence" --voice "nova" --high-quality
+python main.py generate-content --subject "Artificial Intelligence" --type "blog" --voice "nova" --high-quality
 ```
 
 Options:
-- `--subject`: The topic for your rap (required)
+- `--subject`: The topic for your content (required)
+- `--type`: Type of content to generate (e.g., blog, poem, story) (default: "general")
 - `--voice`: Voice for text-to-speech (default: "alloy")
 - `--high-quality`: Use high-quality audio generation (flag)
 - `--output`: Save the generated audio to a file
@@ -72,4 +73,4 @@ Contributions, issues, and feature requests are welcome! Feel free to check [iss
 
 Got questions? Reach out to us at [your-email@example.com](mailto:your-email@example.com)
 
-🐌💯🔥 Happy Rapping with TurboPot! 🐌💯🔥
+🐌💯🔥 Happy Content Creating with TurboPot! 🐌💯🔥
