@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from api import generate_spoken_audio
+from api import RapGenerator
+import os
+from dotenv import load_dotenv
 import typer
 import uvicorn
 import subprocess
@@ -11,6 +13,10 @@ from typing import Optional
 
 app = FastAPI()
 cli = typer.Typer()
+
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+rap_generator = RapGenerator(OPENAI_API_KEY)
 
 class RapRequest(BaseModel):
     prompt: str
@@ -36,7 +42,7 @@ async def generate_rap(request: RapRequest):
     - HTTPException: If an error occurs during generation
     """
     try:
-        lyrics, audio_stream = generate_spoken_audio(request.prompt, voice=request.voice, high_quality=request.high_quality)
+        lyrics, audio_stream = rap_generator.generate_spoken_audio(request.prompt, voice=request.voice, high_quality=request.high_quality)
         return StreamingResponse(audio_stream, media_type="audio/mpeg", headers={"Content-Disposition": "attachment; filename=generated_rap.mp3"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -85,7 +91,7 @@ def generate_rap(
     $ python main.py generate-rap --subject "Artificial Intelligence" --output rap.mp3 🐌💯🔥
     """
     prompt = f"Write a rap about: {subject}"
-    lyrics, audio_stream = generate_spoken_audio(prompt, voice=voice, high_quality=high_quality)
+    lyrics, audio_stream = rap_generator.generate_spoken_audio(prompt, voice=voice, high_quality=high_quality)
     typer.echo(f"Generated rap lyrics:\n{lyrics}")
     
     # Save the audio stream to a temporary file
