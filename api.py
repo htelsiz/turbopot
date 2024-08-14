@@ -1,7 +1,6 @@
 import openai
 import os
 import sounddevice as sd
-import numpy as np
 from dotenv import load_dotenv
 from gtts import gTTS
 from io import BytesIO
