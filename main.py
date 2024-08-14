@@ -154,13 +154,17 @@ def generate_story(
     $ python main.py generate-story --prompt "A magical forest" --genre fantasy --length medium
     $ python main.py generate-story --prompt "A detective in space" --genre scifi --output story.txt
     """
-    story = generate_story(prompt, genre=genre, length=length)
-    typer.echo(f"Generated story:\n\n{story}")
+    try:
+        story = generate_story(prompt, genre=genre, length=length)
+        typer.echo(f"Generated story:\n\n{story}")
 
-    if output:
-        with open(output, 'w') as f:
-            f.write(story)
-        typer.echo(f"Story saved to {output}")
+        if output:
+            with open(output, 'w') as f:
+                f.write(story)
+            typer.echo(f"Story saved to {output}")
+    except Exception as e:
+        typer.echo(f"Error generating story: {str(e)}", err=True)
+        raise typer.Exit(code=1)
 
 if __name__ == "__main__":
     cli()
