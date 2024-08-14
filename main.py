@@ -139,26 +139,6 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
                 stderr=subprocess.DEVNULL
             )
 
-        audio_queue = asyncio.Queue()
-
-        async def play_audio():
-            while True:
-                chunk = await audio_queue.get()
-                if chunk is None:
-                    break
-                if ffplay_process and ffplay_process.poll() is None:
-                    try:
-                        ffplay_process.stdin.write(chunk)
-                        ffplay_process.stdin.flush()
-                    except BrokenPipeError:
-                        # ffplay process has ended, restart it
-                        await start_ffplay()
-                        ffplay_process.stdin.write(chunk)
-                        ffplay_process.stdin.flush()
-                audio_queue.task_done()
-
-        audio_player = asyncio.create_task(play_audio())
-
         try:
             async for chunk_type, chunk in content_stream:
                 if chunk_type == "text":
@@ -169,12 +149,23 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
                     if ffplay_process is None:
                         typer.echo("\nPlaying generated content. Press Ctrl+C to stop.")
                         await start_ffplay()
-                    await audio_queue.put(chunk)
+                    if ffplay_process and ffplay_process.poll() is None:
+                        try:
+                            ffplay_process.stdin.write(chunk)
+                            ffplay_process.stdin.flush()
+                        except BrokenPipeError:
+                            # ffplay process has ended, restart it
+                            await start_ffplay()
+                            ffplay_process.stdin.write(chunk)
+                            ffplay_process.stdin.flush()
+
+        except asyncio.CancelledError:
+            typer.echo("\nContent generation cancelled.")
         except Exception as e:
             typer.echo(f"\nAn error occurred during content generation: {str(e)}")
         finally:
-            await audio_queue.put(None)  # Signal the end of audio
-            await audio_player
+            if ffplay_process:
+                ffplay_process.terminate()
 
         end_time = time.time()
         typer.echo(f"\nGenerated {content_type} content completed.")
@@ -194,9 +185,6 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
         typer.echo("Error: Request timed out")
     except Exception as e:
         typer.echo(f"An error occurred: {str(e)}")
-    finally:
-        if ffplay_process:
-            ffplay_process.terminate()
 
 @cli.command()
 def generate_content(
