@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from api import generate_spoken_audio
 import typer
 import uvicorn
-import ffmpeg.node as ffmpeg
+import ffmpeg
 import tempfile
 import os
 
