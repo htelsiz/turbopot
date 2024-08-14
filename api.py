@@ -6,7 +6,7 @@ import pygame
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def generate_spoken_audio(text, voice="alloy", model="gpt-4-turbo-preview"):
+def generate_spoken_audio(text, voice="alloy", model="gpt-4"):
     # Generate text response
     chat_response = client.chat.completions.create(
         model=model,
