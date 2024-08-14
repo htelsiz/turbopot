@@ -113,18 +113,19 @@ def generate_content(
 async def async_generate_content(prompt, content_type, voice, high_quality, output):
     try:
         start_time = time.time()
-        content_stream = await generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality)
+        content_stream = generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality)
         
         content = ""
         audio_chunks = []
         async for chunk in content_stream:
             if isinstance(chunk, str):
                 content += chunk
+                print(chunk, end='', flush=True)
             else:
                 audio_chunks.append(chunk)
         
         end_time = time.time()
-        typer.echo(f"Generated {content_type} content:\n{content}")
+        typer.echo(f"\nGenerated {content_type} content completed.")
         typer.echo(f"Total generation time: {end_time - start_time:.2f} seconds")
         
         # Save the audio stream to a temporary file
