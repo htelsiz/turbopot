@@ -3,7 +3,6 @@ import asyncio
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
 from colorama import init, Fore, Style
-from functools import lru_cache
 import time
 
 # Initialize colorama
@@ -56,17 +55,7 @@ class ContentGenerator:
             print(f"{Fore.RED}Error generating speech: {str(e)}{Style.RESET_ALL}")
             raise
 
-    @lru_cache(maxsize=100)
-    def _cache_key(self, text, content_type, voice, model, high_quality):
-        return f"{text}:{content_type}:{voice}:{model}:{high_quality}"
-
     async def generate_spoken_content(self, text, content_type="general", voice="alloy", model="gpt-4", high_quality=False):
-        cache_key = self._cache_key(text, content_type, voice, model, high_quality)
-        cached_result = self._cache_key.cache_get(cache_key)
-        if cached_result is not None:
-            print(f"{Fore.GREEN}🐌💯 Returning cached content 🔥{Style.RESET_ALL}")
-            return cached_result
-
         print(f"{Fore.CYAN}🐌💯 We're about to create some amazing {content_type} content for: '{text}'{Style.RESET_ALL}")
         print(f"{Fore.MAGENTA}Using voice: {voice}, model: {model}, high quality: {high_quality} 🐌💯{Style.RESET_ALL}")
 
@@ -82,9 +71,7 @@ class ContentGenerator:
         print(f"{Fore.GREEN}🐌💯 Content audio generated and ready to stream 🔥{Style.RESET_ALL}")
         print(f"Total generation time: {end_time - start_time:.2f} seconds")
 
-        result = (generated_text, audio_content)
-        self._cache_key.cache_set(cache_key, result)
-        return result
+        return generated_text, audio_content
 
 async def generate_spoken_content(text, content_type="general", voice="alloy", model="gpt-4", high_quality=False):
     generator = ContentGenerator(os.getenv("OPENAI_API_KEY"))
