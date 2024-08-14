@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import typer
 import uvicorn
 import subprocess
-import tempfile
+import io
 import asyncio
 from typing import Optional
 import time
@@ -128,23 +128,18 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
         typer.echo(f"\nGenerated {content_type} content completed.")
         typer.echo(f"Total generation time: {end_time - start_time:.2f} seconds")
         
-        # Save the audio stream to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
-            for chunk in audio_chunks:
-                temp_file.write(chunk)
-        
-        # Play the audio using ffplay
+        # Play the audio directly using ffplay
         try:
             typer.echo("Playing generated content. Press Ctrl+C to stop.")
-            subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file.name], check=True)
+            audio_data = io.BytesIO(b''.join(audio_chunks))
+            ffplay_process = subprocess.Popen(["ffplay", "-nodisp", "-autoexit", "-"], stdin=subprocess.PIPE)
+            ffplay_process.communicate(input=audio_data.getvalue())
         except KeyboardInterrupt:
             typer.echo("Playback stopped.")
         except subprocess.CalledProcessError:
             typer.echo("Error: ffplay is not installed or encountered an error.")
         except Exception as e:
             typer.echo(f"An error occurred: {str(e)}")
-        finally:
-            os.unlink(temp_file.name)
     except asyncio.TimeoutError:
         typer.echo("Error: Request timed out")
     except Exception as e:
