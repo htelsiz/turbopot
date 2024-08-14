@@ -5,6 +5,7 @@ import subprocess
 import psutil
 import time
 from dotenv import load_dotenv
+import io
 
 load_dotenv()
 
@@ -56,7 +57,7 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
     print("Generating speech from text...")
     start_time = time.time()
     tts_model = "tts-1-hd" if high_quality else "tts-1"
-    speech_response = requests.post(
+    with requests.post(
         "https://api.openai.com/v1/audio/speech",
         headers={
             "Authorization": f"Bearer {OPENAI_API_KEY}",
@@ -66,50 +67,46 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
             "model": tts_model,
             "voice": voice,
             "input": generated_text
-        }
-    )
-    speech_response.raise_for_status()
-    print(f"Speech generated. Time taken: {time.time() - start_time:.2f} seconds")
+        },
+        stream=True
+    ) as speech_response:
+        speech_response.raise_for_status()
+        print(f"Speech generated. Time taken: {time.time() - start_time:.2f} seconds")
 
-    # Save the audio to a temporary file
-    temp_file = "temp_speech.mp3"
-    with open(temp_file, "wb") as f:
-        f.write(speech_response.content)
-    print(f"Audio saved to temporary file: {temp_file}")
+        # Play the audio using ffplay
+        print("Starting audio playback...")
+        show_streaming_processes()
+        start_time = time.time()
+        
+        try:
+            print("Streaming audio directly from OpenAI")
+            ffplay_process = subprocess.Popen(
+                ["ffplay", "-nodisp", "-autoexit", "-"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
 
-    # Play the audio using ffmpeg
-    print("Starting audio playback...")
-    show_streaming_processes()
-    start_time = time.time()
-    
-    try:
-        print(f"Playing audio file: {temp_file}")
-        result = subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file], 
-                                stdout=subprocess.PIPE, 
-                                stderr=subprocess.PIPE, 
-                                text=True, 
-                                check=True)
-        print("FFplay output:")
-        print(result.stdout)
-        if result.stderr:
-            print("FFplay errors:")
-            print(result.stderr)
-    except subprocess.CalledProcessError as e:
-        print(f"Error during audio playback: {e}")
-        print("FFplay output:")
-        print(e.stdout)
-        print("FFplay errors:")
-        print(e.stderr)
-    
-    print(f"Audio playback finished. Time taken: {time.time() - start_time:.2f} seconds")
-    show_streaming_processes()
+            # Stream the audio data to ffplay
+            for chunk in speech_response.iter_content(chunk_size=4096):
+                if chunk:
+                    ffplay_process.stdin.write(chunk)
+            
+            ffplay_process.stdin.close()
+            ffplay_process.wait()
 
-    # Clean up
-    try:
-        os.remove(temp_file)
-        print(f"Temporary file {temp_file} removed.")
-    except Exception as e:
-        print(f"Error removing temporary file: {e}")
+            stdout, stderr = ffplay_process.communicate()
+            print("FFplay output:")
+            print(stdout.decode())
+            if stderr:
+                print("FFplay errors:")
+                print(stderr.decode())
+
+        except Exception as e:
+            print(f"Error during audio playback: {e}")
+        
+        print(f"Audio playback finished. Time taken: {time.time() - start_time:.2f} seconds")
+        show_streaming_processes()
 
     return generated_text
 
