@@ -109,9 +109,12 @@ def generate_content(
     $ python main.py generate-content --subject "Artificial Intelligence" --type "blog" --output content.mp3 🐌💯🔥
     """
     prompt = f"Create {content_type} content about: {subject}"
+    asyncio.run(async_generate_content(prompt, content_type, voice, high_quality, output))
+
+async def async_generate_content(prompt, content_type, voice, high_quality, output):
     try:
         start_time = time.time()
-        content_stream = asyncio.run(generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality))
+        content_stream = await generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality)
         
         content = ""
         audio_chunks = []
