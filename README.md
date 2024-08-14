@@ -1,45 +1,75 @@
 # TurboPot 🐌💯🔥 - AI Rap Generator
 
-## 🐌💯 Quick Start
+TurboPot is an innovative AI-powered rap generator that creates custom rap lyrics and converts them to speech using various voices. It offers both a command-line interface and a web API for easy integration into your projects.
 
-1. Clone & install:
+## 🚀 Features
+
+- 🎵 AI-powered rap lyrics generation
+- 🗣️ Text-to-speech conversion with multiple voice options
+- 🎚️ High-quality audio generation option
+- 🖥️ Command-line interface for quick generation
+- 🌐 Web API for integration into other applications
+
+## 🛠️ Installation
+
+1. Clone the repository:
    ```
    git clone https://github.com/yourusername/turbopot.git
    cd turbopot
+   ```
+
+2. Install dependencies:
+   ```
    pip install -r requirements.txt
    ```
 
-2. Add OpenAI API key to `.env`:
+3. Set up your OpenAI API key:
+   Create a `.env` file in the project root and add your API key:
    ```
    OPENAI_API_KEY=your_key_here
    ```
 
-## 🐌💯 Generate Rap
+## 🎙️ Usage
 
+### Command-line Interface
+
+Generate a rap:
 ```
-python main.py generate-rap --subject "Tacos" --voice "nova" --high-quality
+python main.py generate-rap --subject "Artificial Intelligence" --voice "nova" --high-quality
 ```
 
-## 🐌💯 Web API
+Options:
+- `--subject`: The topic for your rap (required)
+- `--voice`: Voice for text-to-speech (default: "alloy")
+- `--high-quality`: Use high-quality audio generation (flag)
+- `--output`: Save the generated audio to a file
 
-Start server:
+### Web API
+
+Start the server:
 ```
 python main.py run-server
 ```
-Visit: http://127.0.0.1:8000/docs
 
-## 🐌💯 Options
+Access the API documentation at `http://127.0.0.1:8000/docs`
 
-- Rap: `--subject`, `--voice`, `--high-quality`, `--output`
+## 🧪 Testing
 
-## 🐌💯 Features
+Run the test script:
+```
+python test_generate_spoken_audio.py "Your test prompt here"
+```
 
-- AI-powered rap generation 🐌
-- Text-to-speech with cool voices 💯
-- Web API & CLI 🐌💯
+## 📄 License
 
-## 🐌💯 License
+This project is licensed under the [MIT License](LICENSE).
 
-[MIT License](LICENSE)
+## 🤝 Contributing
 
-Need help? Just ask! 🐌💯🔥
+Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/yourusername/turbopot/issues).
+
+## 📬 Contact
+
+Got questions? Reach out to us at [your-email@example.com](mailto:your-email@example.com)
+
+🐌💯🔥 Happy Rapping with TurboPot! 🐌💯🔥
