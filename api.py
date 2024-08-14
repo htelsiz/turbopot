@@ -75,8 +75,8 @@ class ContentGenerator:
         print(f"{Fore.GREEN}🐌💯 Content audio generated and streamed 🔥{Style.RESET_ALL}")
         print(f"Total generation time: {end_time - start_time:.2f} seconds")
 
-async def generate_spoken_content_stream(text, content_type="general", voice="alloy", model="gpt-4", high_quality=False):
+async def generate_spoken_content_stream(text, content_type="general", voice="alloy", model="gpt-4", high_quality=False, max_length=None):
     generator = ContentGenerator(os.getenv("OPENAI_API_KEY"))
-    async for chunk_type, chunk in generator.generate_spoken_content_stream(text, content_type, voice, model, high_quality):
+    async for chunk_type, chunk in generator.generate_spoken_content_stream(text, content_type, voice, model, high_quality, max_length):
         yield chunk_type, chunk
 
