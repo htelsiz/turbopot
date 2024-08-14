@@ -88,7 +88,8 @@ def generate_content(
     content_type: str = typer.Option("general", "--type", help="Type of content to generate (e.g., blog, poem, story) 🐌💯"),
     voice: str = typer.Option("alloy", help="Voice to use for text-to-speech 🐌💯"),
     high_quality: bool = typer.Option(False, help="Use high-quality audio generation 🐌💯"),
-    output: str = typer.Option(None, help="File path to save the generated audio 🐌💯")
+    output: str = typer.Option(None, help="File path to save the generated audio 🐌💯"),
+    max_length: Optional[int] = typer.Option(None, help="Maximum number of characters for the generated content 🐌💯")
 ):
     """
     Generate content and audio from the command line. 🐌💯🔥
@@ -108,7 +109,7 @@ def generate_content(
     $ python main.py generate-content --subject "Artificial Intelligence" --type "blog" --output content.mp3 🐌💯🔥
     """
     prompt = f"Create {content_type} content about: {subject}"
-    asyncio.run(async_generate_content(prompt, content_type, voice, high_quality, output))
+    asyncio.run(async_generate_content(prompt, content_type, voice, high_quality, output, max_length))
 
 import asyncio
 import subprocess
@@ -117,10 +118,10 @@ import typer
 from api import generate_spoken_content_stream
 import time
 
-async def async_generate_content(prompt, content_type, voice, high_quality, output):
+async def async_generate_content(prompt, content_type, voice, high_quality, output, max_length):
     try:
         start_time = time.time()
-        content_stream = generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality)
+        content_stream = generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality, max_length=max_length)
         
         content = ""
         audio_buffer = io.BytesIO()

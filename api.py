@@ -14,16 +14,21 @@ class ContentGenerator:
     def __init__(self, api_key):
         self.client = AsyncOpenAI(api_key=api_key)
 
-    async def generate_text_stream(self, prompt, content_type="general", model="gpt-4"):
+    async def generate_text_stream(self, prompt, content_type="general", model="gpt-4", max_length=None):
         print(f"{Fore.BLUE}🐌💯 AI's putting on its thinking cap to create some amazing {content_type} content... 🔥{Style.RESET_ALL}")
         try:
+            messages = [
+                {"role": "system", "content": f"You are a creative assistant skilled in generating various types of content. You are now tasked with creating {content_type} content. Respond with appropriate content in the style and format typical for {content_type}."},
+                {"role": "user", "content": f"Generate {content_type} content based on this prompt: {prompt}"}
+            ]
+            if max_length:
+                messages[0]["content"] += f" Your response must not exceed {max_length} characters."
+            
             stream = await self.client.chat.completions.create(
                 model=model,
-                messages=[
-                    {"role": "system", "content": f"You are a creative assistant skilled in generating various types of content. You are now tasked with creating {content_type} content. Respond with appropriate content in the style and format typical for {content_type}."},
-                    {"role": "user", "content": f"Generate {content_type} content based on this prompt: {prompt}"}
-                ],
-                stream=True
+                messages=messages,
+                stream=True,
+                max_tokens=max_length // 4 if max_length else None  # Approximate token limit based on character limit
             )
             
             print(f"{Fore.YELLOW}Streaming content:{Style.RESET_ALL}")
@@ -50,12 +55,12 @@ class ContentGenerator:
             print(f"{Fore.RED}Error generating speech: {str(e)}{Style.RESET_ALL}")
             raise
 
-    async def generate_spoken_content_stream(self, text, content_type="general", voice="alloy", model="gpt-4", high_quality=False):
+    async def generate_spoken_content_stream(self, text, content_type="general", voice="alloy", model="gpt-4", high_quality=False, max_length=None):
         print(f"{Fore.CYAN}🐌💯 We're about to create some amazing {content_type} content for: '{text}'{Style.RESET_ALL}")
-        print(f"{Fore.MAGENTA}Using voice: {voice}, model: {model}, high quality: {high_quality} 🐌💯{Style.RESET_ALL}")
+        print(f"{Fore.MAGENTA}Using voice: {voice}, model: {model}, high quality: {high_quality}, max length: {max_length if max_length else 'unlimited'} 🐌💯{Style.RESET_ALL}")
 
         start_time = time.time()
-        text_stream = self.generate_text_stream(text, content_type, model)
+        text_stream = self.generate_text_stream(text, content_type, model, max_length)
         
         generated_text = ""
         async for content in text_stream:
