@@ -14,8 +14,8 @@ class ContentGenerator:
     def __init__(self, api_key):
         self.client = AsyncOpenAI(api_key=api_key)
 
-    async def generate_text_stream(self, prompt, content_type="general", model="gpt-4", max_length=None):
-        print(f"{Fore.BLUE}🐌💯 AI's putting on its thinking cap to create some amazing {content_type} content... 🔥{Style.RESET_ALL}")
+    async def generate_text_stream(self, prompt, content_type="general", model="gpt-4o", max_length=None):
+        print(f"{Fore.LIGHTMAGENTA_EX}🐌🔥🔥💯🔥💯💯💯💯💯  WHOAH!!! THAT 🐌SNAIL🐌 IS FAST... 🐌🐌🔥🔥🐌🔥🔥🔥{Style.RESET_ALL}")
         try:
             messages = [
                 {"role": "system", "content": f"You are a creative assistant skilled in generating various types of content. You are now tasked with creating {content_type} content. Respond with appropriate content in the style and format typical for {content_type}."},
@@ -58,8 +58,8 @@ class ContentGenerator:
             print(f"{Fore.RED}Error generating speech: {str(e)}{Style.RESET_ALL}")
             raise
 
-    async def generate_spoken_content_stream(self, text, content_type="general", voice="alloy", model="gpt-4", high_quality=False, max_length=None):
-        print(f"{Fore.CYAN}🐌💯 We're about to create some amazing {content_type} content for: '{text}'{Style.RESET_ALL}")
+    async def generate_spoken_content_stream(self, text, content_type="general", voice="alloy", model="gpt-4o", high_quality=False, max_length=None):
+        print(f"{Fore.CYAN}🐌💯 WHOAH! THAT SNAIL IS FAST! 💯.............{Style.RESET_ALL}")
         print(f"{Fore.MAGENTA}Using voice: {voice}, model: {model}, high quality: {high_quality}, max length: {max_length if max_length else 'unlimited'} 🐌💯{Style.RESET_ALL}")
 
         start_time = time.time()
@@ -91,7 +91,7 @@ class ContentGenerator:
             print(f"{Fore.RED}Error transcribing audio: {str(e)}{Style.RESET_ALL}")
             raise
 
-async def generate_spoken_content_stream(text, content_type="general", voice="alloy", model="gpt-4", high_quality=False, max_length=None):
+async def generate_spoken_content_stream(text, content_type="general", voice="alloy", model="gpt-4o", high_quality=False, max_length=None):
     generator = ContentGenerator(os.getenv("OPENAI_API_KEY"))
     async for chunk_type, chunk in generator.generate_spoken_content_stream(text, content_type, voice, model, high_quality, max_length):
         yield chunk_type, chunk
