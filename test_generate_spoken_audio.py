@@ -6,3 +6,5 @@ def test_generate_spoken_audio():
     generate_spoken_audio(text)
     print("Audio played successfully.")
 
+if __name__ == "__main__":
+    test_generate_spoken_audio()
