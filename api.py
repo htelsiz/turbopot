@@ -44,7 +44,7 @@ class ContentGenerator:
                 voice=voice,
                 input=text
             )
-            async for chunk in speech_response.iter_bytes(chunk_size=1024):
+            for chunk in speech_response.iter_bytes(chunk_size=1024):
                 yield chunk
         except Exception as e:
             print(f"{Fore.RED}Error generating speech: {str(e)}{Style.RESET_ALL}")
@@ -62,8 +62,8 @@ class ContentGenerator:
             generated_text += content
             yield ("text", content)
 
-        speech_stream = self.generate_speech_stream(generated_text, voice, high_quality)
-        async for chunk in speech_stream:
+        speech_stream = await self.generate_speech_stream(generated_text, voice, high_quality)
+        for chunk in speech_stream:
             yield ("audio", chunk)
 
         end_time = time.time()
