@@ -109,7 +109,7 @@ def generate_content(
     $ python main.py generate-content --subject "Artificial Intelligence" --type "blog" --output content.mp3 🐌💯🔥
     """
     prompt = f"Create {content_type} content about: {subject}"
-    asyncio.run(async_generate_content(prompt, content_type, voice, high_quality, output, max_length))
+    asyncio.run(async_generate_content(prompt, content_type, voice, high_quality, output, max_length, debug))
 
 import asyncio
 import subprocess
