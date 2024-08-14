@@ -113,7 +113,7 @@ def generate_content(
 async def async_generate_content(prompt, content_type, voice, high_quality, output):
     try:
         start_time = time.time()
-        content_stream = generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality)
+        content_stream = await generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality)
         
         content = ""
         audio_buffer = io.BytesIO()
