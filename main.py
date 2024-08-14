@@ -89,7 +89,7 @@ def generate_content(
     voice: str = typer.Option("alloy", help="Voice to use for text-to-speech 🐌💯"),
     high_quality: bool = typer.Option(False, help="Use high-quality audio generation 🐌💯"),
     output: str = typer.Option(None, help="File path to save the generated audio 🐌💯"),
-    max_length: Optional[int] = typer.Option(None, help="Maximum number of characters for the generated content 🐌💯")
+    max_length: Optional[int] = typer.Option(None, "--max-length", help="Maximum number of characters for the generated content 🐌💯")
 ):
     """
     Generate content and audio from the command line. 🐌💯🔥
