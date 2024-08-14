@@ -2,6 +2,8 @@
 
 TurboPot is an innovative AI-powered content generator that creates custom content and converts it to speech using various voices. It offers both a command-line interface and a web API for easy integration into your projects.
 
+Repository: https://github.com/htelsiz/turbopot.git
+
 ## 🚀 Features
 
 - 📝 AI-powered content generation for various types (e.g., blogs, poems, stories)
