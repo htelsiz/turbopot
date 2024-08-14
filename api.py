@@ -1,6 +1,9 @@
 import openai
 import os
 from io import BytesIO
+import sounddevice as sd
+from gtts import gTTS
+from io import BytesIO
 from dotenv import load_dotenv
 from pydub import AudioSegment
 from pydub.playback import play
@@ -21,14 +24,10 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-3.5-turbo"):
 
     generated_text = response.choices[0].message['content'].strip()
 
-    response = openai.Audio.create(
-        model="text-to-speech",
-        input=generated_text,
-        voice=voice
-    )
-
-    audio_content = response['audio_content']
-    audio_fp = BytesIO(audio_content)
+    tts = gTTS(generated_text)
+    audio_fp = BytesIO()
+    tts.write_to_fp(audio_fp)
+    audio_fp.seek(0)
     audio = AudioSegment.from_file(audio_fp, format="mp3")
 
     # Play the audio using pydub

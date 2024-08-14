@@ -20,3 +20,4 @@ gtts==2.2.3
 python-dotenv
 pytest
 pytest
+gtts==2.2.3
