@@ -145,6 +145,34 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
     except Exception as e:
         typer.echo(f"An error occurred: {str(e)}")
 
+@cli.command()
+def generate_content(
+    subject: str = typer.Option(..., "--subject", help="Subject for generating content 🐌💯"),
+    content_type: str = typer.Option("general", "--type", help="Type of content to generate (e.g., blog, poem, story) 🐌💯"),
+    voice: str = typer.Option("alloy", help="Voice to use for text-to-speech 🐌💯"),
+    high_quality: bool = typer.Option(False, help="Use high-quality audio generation 🐌💯"),
+    output: str = typer.Option(None, help="File path to save the generated audio 🐌💯")
+):
+    """
+    Generate content and audio from the command line. 🐌💯🔥
+
+    This command creates content based on the given subject and content type, then converts it to speech.
+    The generated audio will be played immediately and can optionally be saved to a file. 🐌💯
+
+    Options:
+    --subject: The topic or theme for the content (required). 🐌💯
+    --type: The type of content to generate (e.g., blog, poem, story). Default is general. 🐌💯
+    --voice: The voice to use for text-to-speech. Options include alloy, echo, fable, onyx, nova, shimmer. Default is alloy. 🐌💯
+    --high-quality: Flag to enable high-quality audio generation. Default is False. 🐌💯
+    --output: File path to save the generated audio. If not provided, audio will only be played. 🐌💯
+
+    Example usage:
+    $ python main.py generate-content --subject "Space exploration" --type "poem" --voice nova --high-quality 🐌💯🔥
+    $ python main.py generate-content --subject "Artificial Intelligence" --type "blog" --output content.mp3 🐌💯🔥
+    """
+    prompt = f"Create {content_type} content about: {subject}"
+    asyncio.run(async_generate_content(prompt, content_type, voice, high_quality, output))
+
 
 if __name__ == "__main__":
     cli()
