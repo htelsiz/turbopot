@@ -20,14 +20,6 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
     print(f"{Fore.CYAN}🎤 Yo, we're about to drop some sick beats for: '{text}'{Style.RESET_ALL}")
     print(f"{Fore.MAGENTA}Using voice: {voice}, model: {model}, high quality: {high_quality}{Style.RESET_ALL}")
 
-    # Check content moderation
-    print(f"{Fore.YELLOW}🕵️ Checking if this content is family-friendly...{Style.RESET_ALL}")
-    start_time = time.time()
-    if moderate_content(text):
-        print(f"{Fore.RED}🚫 Whoa there! This content's too spicy for our PG-13 rap battle. Keep it clean, fam!{Style.RESET_ALL}")
-        return None
-    print(f"{Fore.GREEN}✅ Content's clean as a whistle! Time taken: {time.time() - start_time:.2f} seconds{Style.RESET_ALL}")
-
     # Generate text response
     print(f"{Fore.BLUE}🧠 AI's putting on its thinking cap to write some fire lyrics...{Style.RESET_ALL}")
     start_time = time.time()
@@ -49,14 +41,6 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
     generated_text = chat_response.json()["choices"][0]["message"]["content"].strip()
     print(f"Rap lyrics generated. Time taken: {time.time() - start_time:.2f} seconds")
     print(f"Generated lyrics:\n{generated_text}\n")
-
-    # Check moderation for generated text
-    print("Checking moderation for generated text...")
-    start_time = time.time()
-    if moderate_content(generated_text):
-        print("Generated content flagged as inappropriate. Cannot create audio.")
-        return None
-    print(f"Content moderation passed. Time taken: {time.time() - start_time:.2f} seconds")
 
     # Generate speech from the text
     print("Generating speech from text...")
@@ -138,23 +122,6 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
     return generated_text
 
 
-def moderate_content(text):
-    print(f"{Fore.YELLOW}🔍 Scanning for any naughty words...{Style.RESET_ALL}")
-    moderation_response = requests.post(
-        "https://api.openai.com/v1/moderations",
-        headers={
-            "Authorization": f"Bearer {OPENAI_API_KEY}",
-            "Content-Type": "application/json"
-        },
-        json={"input": text}
-    )
-    moderation_response.raise_for_status()
-    result = moderation_response.json()["results"][0]["flagged"]
-    if result:
-        print(f"{Fore.RED}😱 Oops! Looks like someone's been watching too many explicit music videos!{Style.RESET_ALL}")
-    else:
-        print(f"{Fore.GREEN}😇 All clear! This content is as pure as freshly fallen snow.{Style.RESET_ALL}")
-    return result
 
 def show_streaming_processes():
     print(f"{Fore.CYAN}🎵 DJ Check! Who's spinning the tracks right now?{Style.RESET_ALL}")
