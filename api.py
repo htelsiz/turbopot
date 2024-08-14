@@ -6,7 +6,15 @@ import pygame
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+def moderate_content(text):
+    response = client.moderations.create(input=text)
+    return response.results[0].flagged
+
 def generate_spoken_audio(text, voice="alloy", model="gpt-4"):
+    # Check content moderation
+    if moderate_content(text):
+        print("Content flagged as inappropriate. Cannot generate audio.")
+        return None
     # Generate text response
     chat_response = client.chat.completions.create(
         model=model,
@@ -16,6 +24,11 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4"):
         ]
     )
     generated_text = chat_response.choices[0].message.content.strip()
+
+    # Check moderation for generated text
+    if moderate_content(generated_text):
+        print("Generated content flagged as inappropriate. Cannot create audio.")
+        return None
 
     # Generate speech from the text
     speech_response = client.audio.speech.create(
