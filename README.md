@@ -7,7 +7,7 @@
 Make sure you have the following installed:
 - Python 3.7 or higher
 - pip (Python package installer)
-- Homebrew (for macOS users)
+- ffmpeg (for audio playback)
 
 ## Installation
 
@@ -22,10 +22,18 @@ Make sure you have the following installed:
     pip install -r requirements.txt
     ```
 
-3. Install `ffmpeg` (required by `pydub`):
-    ```sh
-    brew install ffmpeg
-    ```
+3. Install `ffmpeg`:
+    - On macOS (using Homebrew):
+      ```sh
+      brew install ffmpeg
+      ```
+    - On Ubuntu or Debian:
+      ```sh
+      sudo apt-get update
+      sudo apt-get install ffmpeg
+      ```
+    - On Windows:
+      Download from https://ffmpeg.org/download.html and add to PATH
 
 ## Environment Variables
 

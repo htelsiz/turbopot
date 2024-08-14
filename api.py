@@ -1,8 +1,8 @@
 import os
 import requests
 import json
+import subprocess
 from dotenv import load_dotenv
-import pygame
 
 load_dotenv()
 
@@ -58,17 +58,10 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
     with open(temp_file, "wb") as f:
         f.write(speech_response.content)
 
-    # Initialize pygame mixer
-    pygame.mixer.init()
-    pygame.mixer.music.load(temp_file)
-    pygame.mixer.music.play()
-
-    # Wait for the audio to finish playing
-    while pygame.mixer.music.get_busy():
-        pygame.time.Clock().tick(10)
+    # Play the audio using ffmpeg
+    subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     # Clean up
-    pygame.mixer.quit()
     os.remove(temp_file)
 
     return generated_text
