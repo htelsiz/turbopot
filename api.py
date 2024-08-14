@@ -63,7 +63,7 @@ class ContentGenerator:
                 input=text
             )
             logger.debug("Speech created, starting to stream audio chunks")
-            for chunk in speech_response.iter_bytes(chunk_size=1024):
+            async for chunk in speech_response.iter_bytes_async(chunk_size=1024):
                 logger.debug(f"Yielding audio chunk of size: {len(chunk)} bytes")
                 yield chunk
             logger.info("Speech generation completed")
@@ -89,9 +89,8 @@ class ContentGenerator:
             yield ("text", content)
 
         logger.debug("Text generation completed, starting speech generation")
-        speech_stream = await self.generate_speech_stream(generated_text, voice, high_quality)
         logger.debug("Processing speech stream")
-        for chunk in speech_stream:
+        async for chunk in self.generate_speech_stream(generated_text, voice, high_quality):
             logger.debug(f"Yielding audio chunk of size: {len(chunk)} bytes")
             yield ("audio", chunk)
 
