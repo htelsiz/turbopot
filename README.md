@@ -16,7 +16,7 @@ Repository: https://github.com/htelsiz/turbopot.git
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/turbopot.git
+   git clone https://github.com/htelsiz/turbopot.git
    cd turbopot
    ```
 
@@ -73,6 +73,6 @@ Contributions, issues, and feature requests are welcome! Feel free to check [iss
 
 ## 📬 Contact
 
-Got questions? Reach out to us at [your-email@example.com](mailto:your-email@example.com)
+Got questions? Too bad!
 
 🐌💯🔥 Happy Content Creating with TurboPot! 🐌💯🔥
