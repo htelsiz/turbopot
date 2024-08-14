@@ -1,6 +1,6 @@
-# TurboPot 🐌💯🔥 - AI Content Generator
+# TurboPot 🐌💯🔥 - CLI tool & server with ambiguous capabilities
 
-TurboPot is an innovative AI-powered content generator that creates custom content and converts it to speech using various voices. It offers both a command-line interface and a web API for easy integration into your projects.
+TurboPot is a versatile tool that offers both a command-line interface and a web server with ambiguous capabilities. It provides a range of functionalities that can be easily integrated into various projects.
 
 Repository: https://github.com/htelsiz/turbopot.git
 
