@@ -12,6 +12,27 @@ Repository: https://github.com/htelsiz/turbopot.git
 - 🖥️ Command-line interface for quick generation
 - 🌐 Web API for integration into other applications
 
+## Prerequisites
+
+Before using TurboPot, you need to have FFmpeg installed on your system for playing the generated audio content.
+
+### Installing FFmpeg
+
+#### On macOS:
+```
+brew install ffmpeg
+```
+
+#### On Windows:
+1. Download FFmpeg from https://ffmpeg.org/download.html#build-windows
+2. Extract to a location (e.g., C:\ffmpeg)
+3. Add the bin folder to your system PATH
+
+#### On Linux (Ubuntu/Debian):
+```
+sudo apt update && sudo apt install ffmpeg
+```
+
 ## 🛠️ Installation
 
 1. Clone the repository:
@@ -42,7 +63,7 @@ python main.py generate-content --subject "Artificial Intelligence" --type "blog
 
 Options:
 - `--subject`: The topic for your content (required)
-- `--type`: Type of content to generate (e.g., blog, poem, story) (default: "general")
+- `--type`: Type of content to generate (default: "general")
 - `--voice`: Voice for text-to-speech (default: "alloy")
 - `--high-quality`: Use high-quality audio generation (flag)
 - `--output`: Save the generated audio to a file
@@ -76,56 +97,3 @@ Contributions, issues, and feature requests are welcome! Feel free to check [iss
 Got questions? Too bad!
 
 🐌💯🔥 Happy Content Creating with TurboPot! 🐌💯🔥
-# TurboPot
-
-TurboPot is a powerful content generation tool that uses AI to create various types of content and convert them to speech.
-
-## Prerequisites
-
-Before you can use TurboPot, you need to have FFmpeg installed on your system. FFmpeg is used for playing the generated audio content.
-
-### Installing FFmpeg
-
-#### On macOS:
-
-1. Install Homebrew if you haven't already:
-   ```
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
-2. Install FFmpeg using Homebrew:
-   ```
-   brew install ffmpeg
-   ```
-
-#### On Windows:
-
-1. Download the FFmpeg build from the official website: https://ffmpeg.org/download.html#build-windows
-2. Extract the downloaded zip file to a location on your computer (e.g., C:\ffmpeg)
-3. Add the FFmpeg bin folder to your system PATH:
-   - Right-click on 'This PC' or 'My Computer' and select 'Properties'
-   - Click on 'Advanced system settings'
-   - Click on 'Environment Variables'
-   - Under 'System variables', find and select 'Path', then click 'Edit'
-   - Click 'New' and add the path to the FFmpeg bin folder (e.g., C:\ffmpeg\bin)
-   - Click 'OK' to close all dialogs
-
-#### On Linux (Ubuntu/Debian):
-
-1. Update your package list:
-   ```
-   sudo apt update
-   ```
-2. Install FFmpeg:
-   ```
-   sudo apt install ffmpeg
-   ```
-
-After installing FFmpeg, you should be able to run the `ffplay` command in your terminal or command prompt.
-
-## Installation
-
-[Add installation instructions for TurboPot here]
-
-## Usage
-
-[Add usage instructions for TurboPot here]
