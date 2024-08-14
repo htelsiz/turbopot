@@ -118,12 +118,6 @@ Endpoints:
 - `/generate_content`: Generate content and audio
 - `/transcribe`: Transcribe an uploaded audio file
 
-## 🧪 Testing
-
-Run the test script:
-```
-python test_generate_spoken_audio.py "Your test prompt here"
-```
 
 ## 📄 License
 
