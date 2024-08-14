@@ -25,7 +25,7 @@ class ContentGenerator:
             json={
                 "model": model,
                 "messages": [
-                    {"role": "system", "content": "You are a creative assistant skilled in generating various types of content. When given a prompt, respond with appropriate content in the style requested."},
+                    {"role": "system", "content": "You are a creative assistant skilled in generating various types of content. When given a prompt, respond with appropriate content in the style requested. If no specific style or content type is mentioned, create engaging and informative content that best fits the prompt."},
                     {"role": "user", "content": f"Generate content based on this prompt: {prompt}"}
                 ]
             }
