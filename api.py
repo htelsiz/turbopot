@@ -54,6 +54,9 @@ def generate_story(prompt, genre="fantasy", length="short", model="gpt-4"):
             print(f"{Fore.RED}🐌💯 Unexpected error (attempt {attempt + 1}/{max_retries}): {e}{Style.RESET_ALL}")
             if attempt == max_retries - 1:
                 raise Exception(f"Unexpected error after {max_retries} attempts. Last error: {str(e)}")
+    
+    # If we've exhausted all retries, raise a final exception
+    raise Exception("Failed to generate story after all retry attempts.")
 
 def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False):
     print(f"{Fore.CYAN}🐌💯 Yo, we're about to drop some sick beats for: '{text}'{Style.RESET_ALL}")

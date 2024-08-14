@@ -166,6 +166,7 @@ def generate_story(
         typer.echo(f"Error generating story: {str(e)}", err=True)
         typer.echo(f"Error details: {type(e).__name__}", err=True)
         typer.echo(f"Error args: {e.args}", err=True)
+        typer.echo("Please check your API key and internet connection, then try again.", err=True)
         raise typer.Exit(code=1)
 
 if __name__ == "__main__":
