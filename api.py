@@ -96,6 +96,9 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
                 stderr=subprocess.PIPE
             )
 
+            # Show streaming processes right after starting ffplay
+            show_streaming_processes()
+
             # Stream the audio data to ffplay
             start_time = time.time()
             for chunk in speech_response.iter_content(chunk_size=4096):
@@ -146,11 +149,12 @@ def moderate_content(text):
 def show_streaming_processes():
     print("Current streaming processes:")
     streaming_processes = []
-    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'status']):
         try:
             if 'ffplay' in proc.info['name'].lower() or 'ffmpeg' in proc.info['name'].lower():
                 cmdline = ' '.join(proc.info['cmdline']) if proc.info['cmdline'] else 'N/A'
-                streaming_processes.append(f"PID: {proc.info['pid']}, Name: {proc.info['name']}, Command: {cmdline}")
+                status = proc.info['status']
+                streaming_processes.append(f"PID: {proc.info['pid']}, Name: {proc.info['name']}, Status: {status}, Command: {cmdline}")
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
         except Exception as e:
