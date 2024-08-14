@@ -115,8 +115,12 @@ import asyncio
 import subprocess
 import io
 import typer
-from api import generate_spoken_content_stream
+from api import generate_spoken_content_stream, transcribe_audio_file
 import time
+import sounddevice as sd
+from scipy.io.wavfile import write
+import numpy as np
+import os
 
 async def async_generate_content(prompt, content_type, voice, high_quality, output, max_length):
     try:
@@ -204,6 +208,45 @@ def transcribe_audio(
         typer.echo(f"Transcription: {transcript}")
     except Exception as e:
         typer.echo(f"An error occurred: {str(e)}")
+
+@cli.command()
+def record_and_transcribe(
+    duration: int = typer.Option(5, help="Duration of recording in seconds 🐌💯"),
+    sample_rate: int = typer.Option(44100, help="Sample rate of the recording 🐌💯")
+):
+    """
+    Record audio from the laptop's microphone and transcribe it. 🐌💯🔥
+
+    This command records audio for the specified duration, saves it as a WAV file,
+    and then transcribes it using OpenAI's Whisper model.
+
+    Options:
+    --duration: The duration of the recording in seconds. Default is 5 seconds. 🐌💯
+    --sample_rate: The sample rate of the recording. Default is 44100 Hz. 🐌💯
+
+    Example usage:
+    $ python main.py record-and-transcribe --duration 10 🐌💯🔥
+    """
+    typer.echo(f"Recording for {duration} seconds... 🎙️")
+    recording = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1)
+    sd.wait()
+    typer.echo("Recording finished. Processing... 🐌💯")
+
+    # Normalize the recording to 16-bit integers
+    recording = (recording * 32767).astype(np.int16)
+
+    # Save as WAV file
+    temp_file = "temp_recording.wav"
+    write(temp_file, sample_rate, recording)
+
+    try:
+        transcript = asyncio.run(transcribe_audio_file(temp_file))
+        typer.echo(f"Transcription: {transcript}")
+    except Exception as e:
+        typer.echo(f"An error occurred during transcription: {str(e)}")
+    finally:
+        # Clean up the temporary file
+        os.remove(temp_file)
 
 @app.post("/transcribe")
 async def transcribe_audio_endpoint(file: UploadFile = File(...)):
