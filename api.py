@@ -2,6 +2,7 @@ import os
 import requests
 import json
 import subprocess
+import psutil
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -59,7 +60,11 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
         f.write(speech_response.content)
 
     # Play the audio using ffmpeg
+    print("Starting audio playback...")
+    show_streaming_processes()
     subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    print("Audio playback finished.")
+    show_streaming_processes()
 
     # Clean up
     os.remove(temp_file)
@@ -78,4 +83,14 @@ def moderate_content(text):
     )
     moderation_response.raise_for_status()
     return moderation_response.json()["results"][0]["flagged"]
+
+def show_streaming_processes():
+    print("Current streaming processes:")
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        try:
+            if 'ffplay' in proc.info['name'].lower() or 'ffmpeg' in proc.info['name'].lower():
+                print(f"PID: {proc.info['pid']}, Name: {proc.info['name']}, Command: {' '.join(proc.info['cmdline'])}")
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    print()
 
