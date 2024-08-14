@@ -125,23 +125,31 @@ import os
 async def async_generate_content(prompt, content_type, voice, high_quality, output, max_length):
     try:
         start_time = time.time()
-        typer.echo(f"Generating {content_type} content about: '{prompt}'")
-        typer.echo(f"Using voice: {voice}, high quality: {high_quality}, max length: {max_length}")
+        typer.echo(f"\n🐌💯 TURBOPOT ACTIVATING... 🔥🔥🔥")
+        typer.echo(f"🎭 Content Type: {content_type.upper()}")
+        typer.echo(f"🎤 Voice: {voice.capitalize()}")
+        typer.echo(f"🔊 Audio Quality: {'HIGH' if high_quality else 'Standard'}")
+        typer.echo(f"📏 Max Length: {max_length if max_length else 'Unlimited'}")
+        typer.echo(f"\n🧠 Generating content about: '{prompt}'\n")
+        
         content_stream = generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality, max_length=max_length)
         
         content = ""
         audio_buffer = io.BytesIO()
 
+        typer.echo("📝 Generated Content:")
+        typer.echo("--------------------")
         async for chunk_type, chunk in content_stream:
             if chunk_type == "text":
                 content += chunk
                 print(chunk, end='', flush=True)
             elif chunk_type == "audio":
                 audio_buffer.write(chunk)
+        typer.echo("\n--------------------")
 
         end_time = time.time()
-        typer.echo(f"\nGenerated {content_type} content completed.")
-        typer.echo(f"Total generation time: {end_time - start_time:.2f} seconds")
+        typer.echo(f"\n🎉 Content generation completed!")
+        typer.echo(f"⏱️ Total generation time: {end_time - start_time:.2f} seconds")
 
         # Save audio if output is specified
         if output:
