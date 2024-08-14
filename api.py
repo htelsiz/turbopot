@@ -1,14 +1,11 @@
 import openai
 import os
-from pathlib import Path
+import pyaudio
 from dotenv import load_dotenv
 
 load_dotenv()
 
-import hashlib
-import os
-
-def generate_spoken_audio(text, voice="alloy", model="tts-1", output_format="mp3"):
+def generate_spoken_audio(text, voice="alloy", model="tts-1"):
     api_key = os.getenv("OPENAI_API_KEY")
     openai.api_key = api_key
 
@@ -18,8 +15,21 @@ def generate_spoken_audio(text, voice="alloy", model="tts-1", output_format="mp3
         input=text
     )
 
-    speech_file_path = Path(__file__).parent / f"speech.{output_format}"
-    with open(speech_file_path, "wb") as f:
-        f.write(response['audio'])
+    audio_stream = response['audio']
 
-    return speech_file_path
+    # Initialize PyAudio
+    p = pyaudio.PyAudio()
+
+    # Open a stream
+    stream = p.open(format=pyaudio.paInt16,
+                    channels=1,
+                    rate=22050,
+                    output=True)
+
+    # Play the audio stream
+    stream.write(audio_stream)
+
+    # Close the stream
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
