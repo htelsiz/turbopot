@@ -1,4 +1,4 @@
-from openai import OpenAI
+import openai
 import os
 from io import BytesIO
 from gtts import gTTS
@@ -7,10 +7,15 @@ from pydub import AudioSegment
 from pydub.playback import play
 
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Set up the OpenAI client
+if hasattr(openai, 'OpenAI'):
+    client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+else:
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    client = openai
 
 def generate_spoken_audio(text, voice="alloy", model="gpt-4-turbo-preview"):
-    response = client.chat.completions.create(
+    response = client.ChatCompletion.create(
         model=model,
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
