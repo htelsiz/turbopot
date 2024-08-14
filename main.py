@@ -44,15 +44,14 @@ async def generate_content(request: ContentRequest):
     """
     try:
         start_time = time.time()
-        content_stream = generate_spoken_content_stream(
-            request.prompt,
-            content_type=request.content_type,
-            voice=request.voice,
-            high_quality=request.high_quality
-        )
 
         async def stream_generator():
-            async for chunk in content_stream:
+            async for chunk in generate_spoken_content_stream(
+                request.prompt,
+                content_type=request.content_type,
+                voice=request.voice,
+                high_quality=request.high_quality
+            ):
                 yield chunk
             end_time = time.time()
             print(f"Total API processing time: {end_time - start_time:.2f} seconds")
