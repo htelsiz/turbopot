@@ -10,3 +10,4 @@ ffmpeg-python==0.2.0
 httpx==0.24.1
 sounddevice==0.4.6
 scipy==1.11.4
+python-multipart==0.0.6
