@@ -24,8 +24,8 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
         json={
             "model": model,
             "messages": [
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": text}
+                {"role": "system", "content": "You are a creative assistant skilled in writing rap lyrics. When given a prompt, respond with a rap verse in the style requested."},
+                {"role": "user", "content": f"Write a rap verse based on this prompt: {text}"}
             ]
         }
     )
