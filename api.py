@@ -47,15 +47,12 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
             "model": tts_model,
             "voice": voice,
             "input": generated_text
-        }
+        },
+        stream=True
     )
     speech_response.raise_for_status()
     
-    # Save the audio file
-    with open("generated_rap.mp3", "wb") as f:
-        f.write(speech_response.content)
+    print(f"{Fore.GREEN}🎵 Rap audio generated and ready to stream{Style.RESET_ALL}")
     
-    print(f"{Fore.GREEN}🎵 Rap audio saved as 'generated_rap.mp3'{Style.RESET_ALL}")
-    
-    return generated_text
+    return generated_text, speech_response.iter_content(chunk_size=4096)
 

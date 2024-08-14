@@ -11,11 +11,13 @@ class RapRequest(BaseModel):
     voice: str = "alloy"
     high_quality: bool = False
 
+from fastapi.responses import StreamingResponse
+
 @app.post("/generate_rap")
 async def generate_rap(request: RapRequest):
     try:
-        result = generate_spoken_audio(request.prompt, voice=request.voice, high_quality=request.high_quality)
-        return {"lyrics": result}
+        lyrics, audio_stream = generate_spoken_audio(request.prompt, voice=request.voice, high_quality=request.high_quality)
+        return StreamingResponse(audio_stream, media_type="audio/mpeg", headers={"Content-Disposition": "attachment; filename=generated_rap.mp3"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
