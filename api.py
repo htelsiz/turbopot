@@ -29,9 +29,7 @@ class ContentGenerator:
             print(f"{Fore.YELLOW}Streaming content:{Style.RESET_ALL}")
             async for chunk in stream:
                 if chunk.choices[0].delta.content is not None:
-                    content = chunk.choices[0].delta.content
-                    print(content, end='', flush=True)
-                    yield chunk
+                    yield chunk.choices[0].delta.content
             print("\n")  # Add a newline after the content
         except Exception as e:
             print(f"{Fore.RED}Error generating text: {str(e)}{Style.RESET_ALL}")
@@ -59,15 +57,11 @@ class ContentGenerator:
         text_stream = self.generate_text_stream(text, content_type, model)
         
         generated_text = ""
-        async for chunk in text_stream:
-            if isinstance(chunk, str):
-                generated_text += chunk
-                yield chunk
-            else:
-                if chunk.choices[0].delta.content is not None:
-                    content = chunk.choices[0].delta.content
-                    generated_text += content
-                    yield content
+        print(f"{Fore.YELLOW}Streaming content:{Style.RESET_ALL}")
+        async for content in text_stream:
+            generated_text += content
+            print(content, end='', flush=True)
+            yield content
 
         print(f"\n{Fore.GREEN}Generated content:{Style.RESET_ALL}\n{generated_text}\n")
         
