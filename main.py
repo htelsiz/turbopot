@@ -125,7 +125,7 @@ import os
 async def async_generate_content(prompt, content_type, voice, high_quality, output, max_length):
     try:
         start_time = time.time()
-        typer.echo(f"Generating {content_type} content about: '{subject}'")
+        typer.echo(f"Generating {content_type} content about: '{prompt}'")
         typer.echo(f"Using voice: {voice}, high quality: {high_quality}, max length: {max_length}")
         content_stream = generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality, max_length=max_length)
         
