@@ -78,6 +78,9 @@ sudo apt update && sudo apt install libportaudio2
 Generate content:
 ```
 python main.py generate-content --subject "Artificial Intelligence" --type "blog" --voice "nova" --high-quality
+python main.py generate-content --subject "Dolphins" --type "scientific overview" --voice "fable" --high-quality --max-length 256
+python main.py generate-content --subject "the lines at the post office" --type "meme idea" --voice "shimmer" --high-quality --max-length 256
+
 ```
 
 Options:
