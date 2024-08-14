@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 import asyncio
 from typing import Optional
+import time
 
 app = FastAPI()
 cli = typer.Typer()
@@ -42,13 +43,18 @@ async def generate_content(request: ContentRequest):
     - HTTPException: If an error occurs during generation
     """
     try:
+        start_time = time.time()
         content, audio_stream = await generate_spoken_content(
             request.prompt,
             content_type=request.content_type,
             voice=request.voice,
             high_quality=request.high_quality
         )
+        end_time = time.time()
+        print(f"Total API processing time: {end_time - start_time:.2f} seconds")
         return StreamingResponse(iter([audio_stream]), media_type="audio/mpeg", headers={"Content-Disposition": "attachment; filename=generated_content.mp3"})
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="Request timed out")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -98,25 +104,33 @@ def generate_content(
     $ python main.py generate-content --subject "Artificial Intelligence" --type "blog" --output content.mp3 🐌💯🔥
     """
     prompt = f"Create {content_type} content about: {subject}"
-    content, audio_stream = asyncio.run(generate_spoken_content(prompt, content_type=content_type, voice=voice, high_quality=high_quality))
-    typer.echo(f"Generated {content_type} content:\n{content}")
-    
-    # Save the audio stream to a temporary file
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
-        temp_file.write(audio_stream)
-    
-    # Play the audio using ffplay
     try:
-        typer.echo("Playing generated content. Press Ctrl+C to stop.")
-        subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file.name], check=True)
-    except KeyboardInterrupt:
-        typer.echo("Playback stopped.")
-    except subprocess.CalledProcessError:
-        typer.echo("Error: ffplay is not installed or encountered an error.")
+        start_time = time.time()
+        content, audio_stream = asyncio.run(generate_spoken_content(prompt, content_type=content_type, voice=voice, high_quality=high_quality))
+        end_time = time.time()
+        typer.echo(f"Generated {content_type} content:\n{content}")
+        typer.echo(f"Total generation time: {end_time - start_time:.2f} seconds")
+        
+        # Save the audio stream to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
+            temp_file.write(audio_stream)
+        
+        # Play the audio using ffplay
+        try:
+            typer.echo("Playing generated content. Press Ctrl+C to stop.")
+            subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file.name], check=True)
+        except KeyboardInterrupt:
+            typer.echo("Playback stopped.")
+        except subprocess.CalledProcessError:
+            typer.echo("Error: ffplay is not installed or encountered an error.")
+        except Exception as e:
+            typer.echo(f"An error occurred: {str(e)}")
+        finally:
+            os.unlink(temp_file.name)
+    except asyncio.TimeoutError:
+        typer.echo("Error: Request timed out")
     except Exception as e:
         typer.echo(f"An error occurred: {str(e)}")
-    finally:
-        os.unlink(temp_file.name)
 
 
 if __name__ == "__main__":
