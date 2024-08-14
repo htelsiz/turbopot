@@ -173,9 +173,9 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
         except Exception as e:
             typer.echo(f"\nAn error occurred during content generation: {str(e)}")
             return
-
-        await audio_queue.put(None)  # Signal the end of audio
-        await audio_player
+        finally:
+            await audio_queue.put(None)  # Signal the end of audio
+            await audio_player
 
         end_time = time.time()
         typer.echo(f"\nGenerated {content_type} content completed.")
