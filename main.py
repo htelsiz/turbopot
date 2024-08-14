@@ -173,7 +173,7 @@ def generate_content(
     high_quality: bool = typer.Option(False, help="Use high-quality audio generation 🐌💯"),
     output: str = typer.Option(None, help="File path to save the generated audio 🐌💯"),
     max_length: Optional[int] = typer.Option(None, "--max-length", help="Maximum number of characters for the generated content 🐌💯"),
-    debug: bool = typer.Option(False, "--debug", help="Enable debug mode for verbose logging 🐌💯", default=False)
+    debug: bool = typer.Option(False, "--debug", help="Enable debug mode for verbose logging 🐌💯")
 ):
     """
     Generate content and audio from the command line. 🐌💯🔥
