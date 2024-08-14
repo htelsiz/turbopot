@@ -41,6 +41,13 @@ def generate_story(prompt, genre="fantasy", length="short", model="gpt-4"):
     generated_story = chat_response.json()["choices"][0]["message"]["content"].strip()
     print(f"{Fore.GREEN}📚 Story generated successfully!{Style.RESET_ALL}")
     return generated_story
+
+def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False):
+    print(f"{Fore.CYAN}🎤 Yo, we're about to drop some sick beats for: '{text}'{Style.RESET_ALL}")
+    print(f"{Fore.MAGENTA}Using voice: {voice}, model: {model}, high quality: {high_quality}{Style.RESET_ALL}")
+
+    # Generate text response
+    print(f"{Fore.BLUE}🧠 AI's putting on its thinking cap to write some fire lyrics...{Style.RESET_ALL}")
     chat_response = requests.post(
         "https://api.openai.com/v1/chat/completions",
         headers={
