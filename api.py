@@ -1,5 +1,6 @@
 import openai
 import os
+from io import BytesIO
 from dotenv import load_dotenv
 from pydub import AudioSegment
 from pydub.playback import play
