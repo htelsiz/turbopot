@@ -133,5 +133,3 @@ Contributions, issues, and feature requests are welcome! Feel free to check [iss
 ## 📬 Contact
 
 Got questions? Too bad!
-
-🐌💯🔥 Happy Content Creating with TurboPot! 🐌💯🔥
