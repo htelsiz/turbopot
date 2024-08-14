@@ -62,7 +62,7 @@ class ContentGenerator:
             generated_text += content
             yield ("text", content)
 
-        speech_stream = await self.generate_speech_stream(generated_text, voice, high_quality)
+        speech_stream = self.generate_speech_stream(generated_text, voice, high_quality)
         async for chunk in speech_stream:
             yield ("audio", chunk)
 
@@ -72,5 +72,6 @@ class ContentGenerator:
 
 async def generate_spoken_content_stream(text, content_type="general", voice="alloy", model="gpt-4", high_quality=False):
     generator = ContentGenerator(os.getenv("OPENAI_API_KEY"))
-    return generator.generate_spoken_content_stream(text, content_type, voice, model, high_quality)
+    async for chunk_type, chunk in generator.generate_spoken_content_stream(text, content_type, voice, model, high_quality):
+        yield chunk_type, chunk
 
