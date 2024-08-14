@@ -45,3 +45,52 @@ If no prompt is provided, it will use a default greeting:
     ```sh
     python test_generate_spoken_audio.py
     ```
+# Rap Lyric Generator and Text-to-Speech
+
+This project generates rap lyrics based on a given prompt and then converts the generated text to speech using OpenAI's API.
+
+## Features
+
+- Generate rap lyrics based on user prompts
+- Convert generated lyrics to speech
+- Content moderation to ensure appropriate content
+- Customizable voice options
+- Option for high-quality audio output
+
+## Setup
+
+1. Clone this repository
+2. Install the required packages:
+   ```
+   pip install -r requirements.txt
+   ```
+3. Create a `.env` file in the project root and add your OpenAI API key:
+   ```
+   OPENAI_API_KEY=your_api_key_here
+   ```
+
+## Usage
+
+Run the test script with a prompt:
+
+```
+python test_generate_spoken_audio.py "your prompt here"
+```
+
+You can also specify the voice and audio quality:
+
+```
+python test_generate_spoken_audio.py "your prompt here" "nova" true
+```
+
+Available voices: alloy, echo, fable, onyx, nova, shimmer
+
+## Files
+
+- `api.py`: Contains the main functionality for generating rap lyrics and converting them to speech.
+- `test_generate_spoken_audio.py`: A test script to demonstrate the functionality.
+- `requirements.txt`: Lists the required Python packages.
+
+## Note
+
+This project uses OpenAI's API, which may incur costs. Please be aware of your API usage and any associated fees.
