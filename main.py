@@ -117,11 +117,11 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
         
         content = ""
         audio_chunks = []
-        async for chunk in content_stream:
-            if isinstance(chunk, str):
+        async for chunk_type, chunk in content_stream:
+            if chunk_type == "text":
                 content += chunk
                 print(chunk, end='', flush=True)
-            else:
+            elif chunk_type == "audio":
                 audio_chunks.append(chunk)
         
         end_time = time.time()

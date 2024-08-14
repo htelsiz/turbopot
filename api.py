@@ -57,17 +57,13 @@ class ContentGenerator:
         text_stream = self.generate_text_stream(text, content_type, model)
         
         generated_text = ""
-        print(f"{Fore.YELLOW}Streaming content:{Style.RESET_ALL}")
         async for content in text_stream:
             generated_text += content
-            print(content, end='', flush=True)
-            yield content
+            yield ("text", content)
 
-        print(f"\n{Fore.GREEN}Generated content:{Style.RESET_ALL}\n{generated_text}\n")
-        
         speech_stream = await self.generate_speech_stream(generated_text, voice, high_quality)
         async for chunk in speech_stream:
-            yield chunk
+            yield ("audio", chunk)
 
         end_time = time.time()
         print(f"{Fore.GREEN}🐌💯 Content audio generated and streamed 🔥{Style.RESET_ALL}")
