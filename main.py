@@ -1,22 +1,20 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from api import ContentGenerator
+from api import generate_spoken_content
 import os
 from dotenv import load_dotenv
 import typer
 import uvicorn
 import subprocess
 import tempfile
-import os
+import asyncio
 from typing import Optional
 
 app = FastAPI()
 cli = typer.Typer()
 
 load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-content_generator = ContentGenerator(OPENAI_API_KEY)
 
 class ContentRequest(BaseModel):
     prompt: str
@@ -44,13 +42,13 @@ async def generate_content(request: ContentRequest):
     - HTTPException: If an error occurs during generation
     """
     try:
-        content, audio_stream = content_generator.generate_spoken_content(
+        content, audio_stream = await generate_spoken_content(
             request.prompt,
             content_type=request.content_type,
             voice=request.voice,
             high_quality=request.high_quality
         )
-        return StreamingResponse(audio_stream, media_type="audio/mpeg", headers={"Content-Disposition": "attachment; filename=generated_content.mp3"})
+        return StreamingResponse(iter([audio_stream]), media_type="audio/mpeg", headers={"Content-Disposition": "attachment; filename=generated_content.mp3"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -100,17 +98,16 @@ def generate_content(
     $ python main.py generate-content --subject "Artificial Intelligence" --type "blog" --output content.mp3 🐌💯🔥
     """
     prompt = f"Create {content_type} content about: {subject}"
-    content, audio_stream = content_generator.generate_spoken_content(prompt, content_type=content_type, voice=voice, high_quality=high_quality)
+    content, audio_stream = asyncio.run(generate_spoken_content(prompt, content_type=content_type, voice=voice, high_quality=high_quality))
     typer.echo(f"Generated {content_type} content:\n{content}")
     
     # Save the audio stream to a temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
-        for chunk in audio_stream:
-            temp_file.write(chunk)
+        temp_file.write(audio_stream)
     
     # Play the audio using ffplay
     try:
-        typer.echo("Playing generated rap. Press Ctrl+C to stop.")
+        typer.echo("Playing generated content. Press Ctrl+C to stop.")
         subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file.name], check=True)
     except KeyboardInterrupt:
         typer.echo("Playback stopped.")
