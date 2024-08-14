@@ -149,9 +149,12 @@ def show_streaming_processes():
     for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
             if 'ffplay' in proc.info['name'].lower() or 'ffmpeg' in proc.info['name'].lower():
-                streaming_processes.append(f"PID: {proc.info['pid']}, Name: {proc.info['name']}, Command: {' '.join(proc.info['cmdline'])}")
+                cmdline = ' '.join(proc.info['cmdline']) if proc.info['cmdline'] else 'N/A'
+                streaming_processes.append(f"PID: {proc.info['pid']}, Name: {proc.info['name']}, Command: {cmdline}")
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
+        except Exception as e:
+            print(f"Error processing process: {e}")
     
     if streaming_processes:
         for process in streaming_processes:
