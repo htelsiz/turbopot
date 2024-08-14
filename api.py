@@ -7,25 +7,29 @@ import time
 import signal
 from dotenv import load_dotenv
 import io
+from colorama import init, Fore, Back, Style
+
+# Initialize colorama
+init(autoreset=True)
 
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False, timeout=60):
-    print(f"Generating spoken audio for prompt: '{text}'")
-    print(f"Using voice: {voice}, model: {model}, high quality: {high_quality}")
+    print(f"{Fore.CYAN}🎤 Yo, we're about to drop some sick beats for: '{text}'{Style.RESET_ALL}")
+    print(f"{Fore.MAGENTA}Using voice: {voice}, model: {model}, high quality: {high_quality}{Style.RESET_ALL}")
 
     # Check content moderation
-    print("Checking content moderation...")
+    print(f"{Fore.YELLOW}🕵️ Checking if this content is family-friendly...{Style.RESET_ALL}")
     start_time = time.time()
     if moderate_content(text):
-        print("Input content flagged as inappropriate. Cannot process request.")
+        print(f"{Fore.RED}🚫 Whoa there! This content's too spicy for our PG-13 rap battle. Keep it clean, fam!{Style.RESET_ALL}")
         return None
-    print(f"Content moderation passed. Time taken: {time.time() - start_time:.2f} seconds")
+    print(f"{Fore.GREEN}✅ Content's clean as a whistle! Time taken: {time.time() - start_time:.2f} seconds{Style.RESET_ALL}")
 
     # Generate text response
-    print("Generating rap lyrics...")
+    print(f"{Fore.BLUE}🧠 AI's putting on its thinking cap to write some fire lyrics...{Style.RESET_ALL}")
     start_time = time.time()
     chat_response = requests.post(
         "https://api.openai.com/v1/chat/completions",
@@ -135,6 +139,7 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
 
 
 def moderate_content(text):
+    print(f"{Fore.YELLOW}🔍 Scanning for any naughty words...{Style.RESET_ALL}")
     moderation_response = requests.post(
         "https://api.openai.com/v1/moderations",
         headers={
@@ -144,26 +149,31 @@ def moderate_content(text):
         json={"input": text}
     )
     moderation_response.raise_for_status()
-    return moderation_response.json()["results"][0]["flagged"]
+    result = moderation_response.json()["results"][0]["flagged"]
+    if result:
+        print(f"{Fore.RED}😱 Oops! Looks like someone's been watching too many explicit music videos!{Style.RESET_ALL}")
+    else:
+        print(f"{Fore.GREEN}😇 All clear! This content is as pure as freshly fallen snow.{Style.RESET_ALL}")
+    return result
 
 def show_streaming_processes():
-    print("Current streaming processes:")
+    print(f"{Fore.CYAN}🎵 DJ Check! Who's spinning the tracks right now?{Style.RESET_ALL}")
     streaming_processes = []
     for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'status']):
         try:
             if 'ffplay' in proc.info['name'].lower() or 'ffmpeg' in proc.info['name'].lower():
                 cmdline = ' '.join(proc.info['cmdline']) if proc.info['cmdline'] else 'N/A'
                 status = proc.info['status']
-                streaming_processes.append(f"PID: {proc.info['pid']}, Name: {proc.info['name']}, Status: {status}, Command: {cmdline}")
+                streaming_processes.append(f"🎧 PID: {proc.info['pid']}, DJ Name: {proc.info['name']}, Vibe Status: {status}, Playlist: {cmdline}")
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
         except Exception as e:
-            print(f"Error processing process: {e}")
+            print(f"{Fore.RED}😱 Yo, we hit a snag checking the DJ booth: {e}{Style.RESET_ALL}")
     
     if streaming_processes:
         for process in streaming_processes:
-            print(process)
+            print(f"{Fore.GREEN}{process}{Style.RESET_ALL}")
     else:
-        print("No streaming processes found.")
+        print(f"{Fore.YELLOW}😴 Looks like the party hasn't started yet. No DJs in the house!{Style.RESET_ALL}")
     print()
 

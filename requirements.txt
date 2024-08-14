@@ -2,3 +2,4 @@ requests==2.31.0
 python-dotenv==1.0.1
 pytest==8.0.2
 psutil==5.9.5
+colorama==0.4.6
