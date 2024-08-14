@@ -1,20 +1,16 @@
-import openai
+from openai import OpenAI
 import os
 from io import BytesIO
-import sounddevice as sd
 from gtts import gTTS
-from io import BytesIO
 from dotenv import load_dotenv
 from pydub import AudioSegment
 from pydub.playback import play
 
 load_dotenv()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def generate_spoken_audio(text, voice="alloy", model="gpt-3.5-turbo"):
-    api_key = os.getenv("OPENAI_API_KEY")
-    openai.api_key = api_key
-
-    response = openai.ChatCompletion.create(
+def generate_spoken_audio(text, voice="alloy", model="gpt-4-turbo-preview"):
+    response = client.chat.completions.create(
         model=model,
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
@@ -22,7 +18,7 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-3.5-turbo"):
         ]
     )
 
-    generated_text = response.choices[0].message['content'].strip()
+    generated_text = response.choices[0].message.content.strip()
 
     tts = gTTS(generated_text)
     audio_fp = BytesIO()
