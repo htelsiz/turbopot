@@ -10,7 +10,7 @@ def moderate_content(text):
     response = client.moderations.create(input=text)
     return response.results[0].flagged
 
-def generate_spoken_audio(text, voice="alloy", model="gpt-4"):
+def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False):
     # Check content moderation
     if moderate_content(text):
         print("Content flagged as inappropriate. Cannot generate audio.")
@@ -31,8 +31,9 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4"):
         return None
 
     # Generate speech from the text
+    tts_model = "tts-1-hd" if high_quality else "tts-1"
     speech_response = client.audio.speech.create(
-        model="tts-1",
+        model=tts_model,
         voice=voice,
         input=generated_text
     )
