@@ -117,16 +117,8 @@ import io
 import typer
 from api import generate_spoken_content_stream
 import time
-import logging
 
-# Set up logging
-logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-async def async_generate_content(prompt, content_type, voice, high_quality, output, max_length, debug):
-    if debug:
-        logger.setLevel(logging.DEBUG)
-    
+async def async_generate_content(prompt, content_type, voice, high_quality, output, max_length):
     try:
         start_time = time.time()
         content_stream = generate_spoken_content_stream(prompt, content_type=content_type, voice=voice, high_quality=high_quality, max_length=max_length)
@@ -162,8 +154,6 @@ async def async_generate_content(prompt, content_type, voice, high_quality, outp
         typer.echo("Error: Request timed out")
     except Exception as e:
         typer.echo(f"An error occurred: {str(e)}")
-        if debug:
-            logger.exception("Detailed error information:")
 
 @cli.command()
 def generate_content(
@@ -172,8 +162,7 @@ def generate_content(
     voice: str = typer.Option("alloy", help="Voice to use for text-to-speech 🐌💯"),
     high_quality: bool = typer.Option(False, help="Use high-quality audio generation 🐌💯"),
     output: str = typer.Option(None, help="File path to save the generated audio 🐌💯"),
-    max_length: Optional[int] = typer.Option(None, "--max-length", help="Maximum number of characters for the generated content 🐌💯"),
-    debug: bool = typer.Option(False, "--debug", help="Enable debug mode for verbose logging 🐌💯")
+    max_length: Optional[int] = typer.Option(None, "--max-length", help="Maximum number of characters for the generated content 🐌💯")
 ):
     """
     Generate content and audio from the command line. 🐌💯🔥
