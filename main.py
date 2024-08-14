@@ -20,6 +20,7 @@ content_generator = ContentGenerator(OPENAI_API_KEY)
 
 class ContentRequest(BaseModel):
     prompt: str
+    content_type: str = "general"
     voice: str = "alloy"
     high_quality: bool = False
 
@@ -27,11 +28,12 @@ class ContentRequest(BaseModel):
 @app.post("/generate_content")
 async def generate_content(request: ContentRequest):
     """
-    Generate content and audio based on the provided prompt.
+    Generate content and audio based on the provided prompt and content type.
 
     Parameters:
     - request: ContentRequest object containing:
         - prompt: str, the subject or theme for the content
+        - content_type: str, the type of content to generate (default: "general")
         - voice: str, the voice to use for text-to-speech (default: "alloy")
         - high_quality: bool, whether to use high-quality audio generation (default: False)
 
@@ -42,7 +44,12 @@ async def generate_content(request: ContentRequest):
     - HTTPException: If an error occurs during generation
     """
     try:
-        content, audio_stream = content_generator.generate_spoken_content(request.prompt, voice=request.voice, high_quality=request.high_quality)
+        content, audio_stream = content_generator.generate_spoken_content(
+            request.prompt,
+            content_type=request.content_type,
+            voice=request.voice,
+            high_quality=request.high_quality
+        )
         return StreamingResponse(audio_stream, media_type="audio/mpeg", headers={"Content-Disposition": "attachment; filename=generated_content.mp3"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -70,6 +77,7 @@ def run_server(host: str = typer.Option("127.0.0.1", help="Host to run the serve
 @cli.command()
 def generate_content(
     subject: str = typer.Option(..., "--subject", help="Subject for generating content 🐌💯"),
+    content_type: str = typer.Option("general", "--type", help="Type of content to generate (e.g., blog, poem, story) 🐌💯"),
     voice: str = typer.Option("alloy", help="Voice to use for text-to-speech 🐌💯"),
     high_quality: bool = typer.Option(False, help="Use high-quality audio generation 🐌💯"),
     output: str = typer.Option(None, help="File path to save the generated audio 🐌💯")
@@ -77,22 +85,23 @@ def generate_content(
     """
     Generate content and audio from the command line. 🐌💯🔥
 
-    This command creates content based on the given subject and converts it to speech.
+    This command creates content based on the given subject and content type, then converts it to speech.
     The generated audio will be played immediately and can optionally be saved to a file. 🐌💯
 
     Options:
     --subject: The topic or theme for the content (required). 🐌💯
+    --type: The type of content to generate (e.g., blog, poem, story). Default is general. 🐌💯
     --voice: The voice to use for text-to-speech. Options include alloy, echo, fable, onyx, nova, shimmer. Default is alloy. 🐌💯
     --high-quality: Flag to enable high-quality audio generation. Default is False. 🐌💯
     --output: File path to save the generated audio. If not provided, audio will only be played. 🐌💯
 
     Example usage:
-    $ python main.py generate-content --subject "Space exploration" --voice nova --high-quality 🐌💯🔥
-    $ python main.py generate-content --subject "Artificial Intelligence" --output content.mp3 🐌💯🔥
+    $ python main.py generate-content --subject "Space exploration" --type "poem" --voice nova --high-quality 🐌💯🔥
+    $ python main.py generate-content --subject "Artificial Intelligence" --type "blog" --output content.mp3 🐌💯🔥
     """
-    prompt = f"Create content about: {subject}"
-    content, audio_stream = content_generator.generate_spoken_content(prompt, voice=voice, high_quality=high_quality)
-    typer.echo(f"Generated content:\n{content}")
+    prompt = f"Create {content_type} content about: {subject}"
+    content, audio_stream = content_generator.generate_spoken_content(prompt, content_type=content_type, voice=voice, high_quality=high_quality)
+    typer.echo(f"Generated {content_type} content:\n{content}")
     
     # Save the audio stream to a temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:

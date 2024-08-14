@@ -14,8 +14,8 @@ class ContentGenerator:
     def __init__(self, api_key):
         self.api_key = api_key
 
-    def generate_text(self, prompt, model="gpt-4"):
-        print(f"{Fore.BLUE}🐌💯 AI's putting on its thinking cap to create some amazing content... 🔥{Style.RESET_ALL}")
+    def generate_text(self, prompt, content_type="general", model="gpt-4"):
+        print(f"{Fore.BLUE}🐌💯 AI's putting on its thinking cap to create some amazing {content_type} content... 🔥{Style.RESET_ALL}")
         chat_response = requests.post(
             "https://api.openai.com/v1/chat/completions",
             headers={
@@ -25,8 +25,8 @@ class ContentGenerator:
             json={
                 "model": model,
                 "messages": [
-                    {"role": "system", "content": "You are a creative assistant skilled in generating various types of content. When given a prompt, respond with appropriate content in the style requested. If no specific style or content type is mentioned, create engaging and informative content that best fits the prompt."},
-                    {"role": "user", "content": f"Generate content based on this prompt: {prompt}"}
+                    {"role": "system", "content": f"You are a creative assistant skilled in generating various types of content. You are now tasked with creating {content_type} content. Respond with appropriate content in the style and format typical for {content_type}."},
+                    {"role": "user", "content": f"Generate {content_type} content based on this prompt: {prompt}"}
                 ]
             }
         )
@@ -52,11 +52,11 @@ class ContentGenerator:
         speech_response.raise_for_status()
         return speech_response.iter_content(chunk_size=4096)
 
-    def generate_spoken_content(self, text, voice="alloy", model="gpt-4", high_quality=False):
-        print(f"{Fore.CYAN}🐌💯 We're about to create some amazing content for: '{text}'{Style.RESET_ALL}")
+    def generate_spoken_content(self, text, content_type="general", voice="alloy", model="gpt-4", high_quality=False):
+        print(f"{Fore.CYAN}🐌💯 We're about to create some amazing {content_type} content for: '{text}'{Style.RESET_ALL}")
         print(f"{Fore.MAGENTA}Using voice: {voice}, model: {model}, high quality: {high_quality} 🐌💯{Style.RESET_ALL}")
 
-        generated_text = self.generate_text(text, model)
+        generated_text = self.generate_text(text, content_type, model)
         print(f"Generated content:\n{generated_text}\n")
 
         audio_stream = self.generate_speech(generated_text, voice, high_quality)
@@ -65,7 +65,7 @@ class ContentGenerator:
         
         return generated_text, audio_stream
 
-def generate_spoken_content(text, voice="alloy", model="gpt-4", high_quality=False):
+def generate_spoken_content(text, content_type="general", voice="alloy", model="gpt-4", high_quality=False):
     generator = ContentGenerator(OPENAI_API_KEY)
-    return generator.generate_spoken_content(text, voice, model, high_quality)
+    return generator.generate_spoken_content(text, content_type, voice, model, high_quality)
 
