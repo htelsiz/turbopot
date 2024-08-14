@@ -33,3 +33,5 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4-turbo-preview"):
 
     # Play the audio using pydub
     play(audio)
+
+
