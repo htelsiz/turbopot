@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from api import RapGenerator
+from api import ContentGenerator
 import os
 from dotenv import load_dotenv
 import typer
@@ -16,34 +16,34 @@ cli = typer.Typer()
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-rap_generator = RapGenerator(OPENAI_API_KEY)
+content_generator = ContentGenerator(OPENAI_API_KEY)
 
-class RapRequest(BaseModel):
+class ContentRequest(BaseModel):
     prompt: str
     voice: str = "alloy"
     high_quality: bool = False
 
 
-@app.post("/generate_rap")
-async def generate_rap(request: RapRequest):
+@app.post("/generate_content")
+async def generate_content(request: ContentRequest):
     """
-    Generate rap lyrics and audio based on the provided prompt.
+    Generate content and audio based on the provided prompt.
 
     Parameters:
-    - request: RapRequest object containing:
-        - prompt: str, the subject or theme for the rap
+    - request: ContentRequest object containing:
+        - prompt: str, the subject or theme for the content
         - voice: str, the voice to use for text-to-speech (default: "alloy")
         - high_quality: bool, whether to use high-quality audio generation (default: False)
 
     Returns:
-    - StreamingResponse: Audio stream of the generated rap
+    - StreamingResponse: Audio stream of the generated content
 
     Raises:
     - HTTPException: If an error occurs during generation
     """
     try:
-        lyrics, audio_stream = rap_generator.generate_spoken_audio(request.prompt, voice=request.voice, high_quality=request.high_quality)
-        return StreamingResponse(audio_stream, media_type="audio/mpeg", headers={"Content-Disposition": "attachment; filename=generated_rap.mp3"})
+        content, audio_stream = content_generator.generate_spoken_content(request.prompt, voice=request.voice, high_quality=request.high_quality)
+        return StreamingResponse(audio_stream, media_type="audio/mpeg", headers={"Content-Disposition": "attachment; filename=generated_content.mp3"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -68,31 +68,31 @@ def run_server(host: str = typer.Option("127.0.0.1", help="Host to run the serve
     uvicorn.run("main:app", host=host, port=port, reload=True)
 
 @cli.command()
-def generate_rap(
-    subject: str = typer.Option(..., "--subject", help="Subject for generating rap lyrics 🐌💯"),
+def generate_content(
+    subject: str = typer.Option(..., "--subject", help="Subject for generating content 🐌💯"),
     voice: str = typer.Option("alloy", help="Voice to use for text-to-speech 🐌💯"),
     high_quality: bool = typer.Option(False, help="Use high-quality audio generation 🐌💯"),
     output: str = typer.Option(None, help="File path to save the generated audio 🐌💯")
 ):
     """
-    Generate rap lyrics and audio from the command line. 🐌💯🔥
+    Generate content and audio from the command line. 🐌💯🔥
 
-    This command creates rap lyrics based on the given subject and converts them to speech.
+    This command creates content based on the given subject and converts it to speech.
     The generated audio will be played immediately and can optionally be saved to a file. 🐌💯
 
     Options:
-    --subject: The topic or theme for the rap lyrics (required). 🐌💯
+    --subject: The topic or theme for the content (required). 🐌💯
     --voice: The voice to use for text-to-speech. Options include alloy, echo, fable, onyx, nova, shimmer. Default is alloy. 🐌💯
     --high-quality: Flag to enable high-quality audio generation. Default is False. 🐌💯
     --output: File path to save the generated audio. If not provided, audio will only be played. 🐌💯
 
     Example usage:
-    $ python main.py generate-rap --subject "Space exploration" --voice nova --high-quality 🐌💯🔥
-    $ python main.py generate-rap --subject "Artificial Intelligence" --output rap.mp3 🐌💯🔥
+    $ python main.py generate-content --subject "Space exploration" --voice nova --high-quality 🐌💯🔥
+    $ python main.py generate-content --subject "Artificial Intelligence" --output content.mp3 🐌💯🔥
     """
-    prompt = f"Write a rap about: {subject}"
-    lyrics, audio_stream = rap_generator.generate_spoken_audio(prompt, voice=voice, high_quality=high_quality)
-    typer.echo(f"Generated rap lyrics:\n{lyrics}")
+    prompt = f"Create content about: {subject}"
+    content, audio_stream = content_generator.generate_spoken_content(prompt, voice=voice, high_quality=high_quality)
+    typer.echo(f"Generated content:\n{content}")
     
     # Save the audio stream to a temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
