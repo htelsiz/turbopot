@@ -74,3 +74,15 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
     return generated_text
 
 
+def moderate_content(text):
+    moderation_response = requests.post(
+        "https://api.openai.com/v1/moderations",
+        headers={
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        json={"input": text}
+    )
+    moderation_response.raise_for_status()
+    return moderation_response.json()["results"][0]["flagged"]
+
