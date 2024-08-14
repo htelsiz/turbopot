@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from api import generate_spoken_audio
 import typer
 import uvicorn
-import ffmpeg
+import subprocess
 import tempfile
 import os
 
@@ -49,25 +49,17 @@ def generate_rap(
         for chunk in audio_stream:
             temp_file.write(chunk)
     
-    # Play the audio using ffmpeg
-    process = None
+    # Play the audio using ffplay
     try:
-        stream = ffmpeg.input(temp_file.name)
-        stream = ffmpeg.output(stream, 'pipe:', format='wav', acodec='pcm_s16le')
-        process = ffmpeg.run_async(stream, pipe_stdout=True, pipe_stderr=True)
-        
         typer.echo("Playing generated rap. Press Ctrl+C to stop.")
-        while True:
-            output = process.stdout.read(1024)
-            if not output:
-                break
+        subprocess.run(["ffplay", "-nodisp", "-autoexit", temp_file.name], check=True)
     except KeyboardInterrupt:
         typer.echo("Playback stopped.")
+    except subprocess.CalledProcessError:
+        typer.echo("Error: ffplay is not installed or encountered an error.")
     except Exception as e:
         typer.echo(f"An error occurred: {str(e)}")
     finally:
-        if process:
-            process.kill()
         os.unlink(temp_file.name)
 
 if __name__ == "__main__":
