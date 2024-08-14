@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from api import generate_spoken_audio
 import typer
 import uvicorn
-import ffmpeg
+import ffmpeg.node as ffmpeg
 import tempfile
 import os
 
@@ -50,6 +50,7 @@ def generate_rap(
             temp_file.write(chunk)
     
     # Play the audio using ffmpeg
+    process = None
     try:
         stream = ffmpeg.input(temp_file.name)
         stream = ffmpeg.output(stream, 'pipe:', format='wav', acodec='pcm_s16le')
@@ -62,8 +63,11 @@ def generate_rap(
                 break
     except KeyboardInterrupt:
         typer.echo("Playback stopped.")
+    except Exception as e:
+        typer.echo(f"An error occurred: {str(e)}")
     finally:
-        process.kill()
+        if process:
+            process.kill()
         os.unlink(temp_file.name)
 
 if __name__ == "__main__":
