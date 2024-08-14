@@ -4,6 +4,7 @@ import json
 import subprocess
 import psutil
 import time
+import signal
 from dotenv import load_dotenv
 import io
 
@@ -11,7 +12,7 @@ load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False):
+def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False, timeout=60):
     print(f"Generating spoken audio for prompt: '{text}'")
     print(f"Using voice: {voice}, model: {model}, high quality: {high_quality}")
 
@@ -78,6 +79,14 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
         show_streaming_processes()
         start_time = time.time()
         
+        def signal_handler(signum, frame):
+            print("\nInterrupted by user. Stopping audio playback...")
+            if 'ffplay_process' in locals():
+                ffplay_process.terminate()
+            raise KeyboardInterrupt
+
+        signal.signal(signal.SIGINT, signal_handler)
+
         try:
             print("Streaming audio directly from OpenAI")
             ffplay_process = subprocess.Popen(
@@ -88,12 +97,21 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
             )
 
             # Stream the audio data to ffplay
+            start_time = time.time()
             for chunk in speech_response.iter_content(chunk_size=4096):
                 if chunk:
                     ffplay_process.stdin.write(chunk)
-            
+                if time.time() - start_time > timeout:
+                    print(f"Playback timeout after {timeout} seconds.")
+                    break
+
             ffplay_process.stdin.close()
-            ffplay_process.wait()
+
+            try:
+                ffplay_process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                print("FFplay process did not terminate in time. Forcing termination.")
+                ffplay_process.terminate()
 
             stdout, stderr = ffplay_process.communicate()
             print("FFplay output:")
@@ -102,6 +120,8 @@ def generate_spoken_audio(text, voice="alloy", model="gpt-4", high_quality=False
                 print("FFplay errors:")
                 print(stderr.decode())
 
+        except KeyboardInterrupt:
+            print("Playback interrupted by user.")
         except Exception as e:
             print(f"Error during audio playback: {e}")
         
