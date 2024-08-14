@@ -1,7 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from api import generate_spoken_content_stream
+from api import generate_spoken_content_stream, transcribe_audio_file
 import os
 from dotenv import load_dotenv
 import typer
@@ -184,6 +184,49 @@ def generate_content(
     prompt = f"Create {content_type} content about: {subject}"
     asyncio.run(async_generate_content(prompt, content_type, voice, high_quality, output, max_length))
 
+@cli.command()
+def transcribe_audio(
+    file_path: str = typer.Argument(..., help="Path to the audio file to transcribe 🐌💯")
+):
+    """
+    Transcribe an audio file using OpenAI's Whisper model. 🐌💯🔥
+
+    This command takes an audio file and transcribes its content to text.
+
+    Arguments:
+    file_path: The path to the audio file you want to transcribe (required). 🐌💯
+
+    Example usage:
+    $ python main.py transcribe-audio /path/to/your/audio/file.mp3 🐌💯🔥
+    """
+    try:
+        transcript = asyncio.run(transcribe_audio_file(file_path))
+        typer.echo(f"Transcription: {transcript}")
+    except Exception as e:
+        typer.echo(f"An error occurred: {str(e)}")
+
+@app.post("/transcribe")
+async def transcribe_audio_endpoint(file: UploadFile = File(...)):
+    """
+    Endpoint to transcribe an uploaded audio file.
+
+    Parameters:
+    - file: UploadFile, the audio file to transcribe
+
+    Returns:
+    - dict: A dictionary containing the transcription text
+
+    Raises:
+    - HTTPException: If an error occurs during transcription
+    """
+    try:
+        with open(file.filename, "wb") as buffer:
+            buffer.write(await file.read())
+        transcript = await transcribe_audio_file(file.filename)
+        os.remove(file.filename)  # Clean up the temporary file
+        return {"transcription": transcript}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     cli()

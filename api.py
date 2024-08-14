@@ -77,8 +77,26 @@ class ContentGenerator:
         print(f"{Fore.GREEN}🐌💯 Content audio generated and streamed 🔥{Style.RESET_ALL}")
         print(f"Total generation time: {end_time - start_time:.2f} seconds")
 
+    async def transcribe_audio(self, file_path):
+        print(f"{Fore.BLUE}🐌💯 Transcribing audio file... 🔥{Style.RESET_ALL}")
+        try:
+            with open(file_path, "rb") as audio_file:
+                transcript = await self.client.audio.transcriptions.create(
+                    model="whisper-1",
+                    file=audio_file
+                )
+            print(f"{Fore.GREEN}🐌💯 Audio transcription completed 🔥{Style.RESET_ALL}")
+            return transcript.text
+        except Exception as e:
+            print(f"{Fore.RED}Error transcribing audio: {str(e)}{Style.RESET_ALL}")
+            raise
+
 async def generate_spoken_content_stream(text, content_type="general", voice="alloy", model="gpt-4", high_quality=False, max_length=None):
     generator = ContentGenerator(os.getenv("OPENAI_API_KEY"))
     async for chunk_type, chunk in generator.generate_spoken_content_stream(text, content_type, voice, model, high_quality, max_length):
         yield chunk_type, chunk
+
+async def transcribe_audio_file(file_path):
+    generator = ContentGenerator(os.getenv("OPENAI_API_KEY"))
+    return await generator.transcribe_audio(file_path)
 
