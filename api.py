@@ -25,7 +25,14 @@ class ContentGenerator:
                 ],
                 stream=True
             )
-            return stream
+            
+            print(f"{Fore.YELLOW}Streaming content:{Style.RESET_ALL}")
+            async for chunk in stream:
+                if chunk.choices[0].delta.content is not None:
+                    content = chunk.choices[0].delta.content
+                    print(content, end='', flush=True)
+                    yield chunk
+            print("\n")  # Add a newline after the content
         except Exception as e:
             print(f"{Fore.RED}Error generating text: {str(e)}{Style.RESET_ALL}")
             raise
@@ -49,15 +56,20 @@ class ContentGenerator:
         print(f"{Fore.MAGENTA}Using voice: {voice}, model: {model}, high quality: {high_quality} 🐌💯{Style.RESET_ALL}")
 
         start_time = time.time()
-        text_stream = await self.generate_text_stream(text, content_type, model)
+        text_stream = self.generate_text_stream(text, content_type, model)
         
         generated_text = ""
         async for chunk in text_stream:
-            if chunk.choices[0].delta.content is not None:
-                generated_text += chunk.choices[0].delta.content
-                yield chunk.choices[0].delta.content
+            if isinstance(chunk, str):
+                generated_text += chunk
+                yield chunk
+            else:
+                if chunk.choices[0].delta.content is not None:
+                    content = chunk.choices[0].delta.content
+                    generated_text += content
+                    yield content
 
-        print(f"\nGenerated content:\n{generated_text}\n")
+        print(f"\n{Fore.GREEN}Generated content:{Style.RESET_ALL}\n{generated_text}\n")
         
         speech_stream = await self.generate_speech_stream(generated_text, voice, high_quality)
         async for chunk in speech_stream:
