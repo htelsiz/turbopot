@@ -11,6 +11,7 @@ TurboPot is an innovative project that combines the power of AI to generate rap 
 - Web API for easy integration with other applications
 - User-friendly command-line interface
 - Streaming audio response for efficient delivery
+- Option to save generated audio to a file
 
 ## Prerequisites
 
@@ -50,14 +51,21 @@ Access the API documentation at `http://127.0.0.1:8000/docs` to interact with th
 
 ### Command-Line Interface
 
-Generate rap lyrics and audio:
+Generate rap lyrics and play audio:
 ```sh
-python main.py generate-rap "Your prompt here" --voice "alloy" --high-quality
+python main.py generate-rap --subject "Your subject here" --voice "alloy" --high-quality
+```
+
+Generate rap lyrics and save audio to a file:
+```sh
+python main.py generate-rap --subject "Your subject here" --voice "alloy" --high-quality --output "output.wav"
 ```
 
 Options:
+- `--subject`: The subject for generating rap lyrics
 - `--voice`: Choose from available voices (alloy, echo, fable, onyx, nova, shimmer)
 - `--high-quality`: Enable high-quality audio generation
+- `--output`: Specify a file to save the generated audio (optional)
 
 ## Project Structure
 
