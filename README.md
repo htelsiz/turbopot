@@ -1,17 +1,44 @@
-# turbopot 🐌💯🔥 - CLI tool & server with ambiguous capabilities (inspired by Turbo the Snail)
+# turbopot 🐌💯🔥 - CLI tool & server with AI-powered content generation and speech synthesis
 
-turbopot is a versatile tool that offers both a command-line interface and a web server with ambiguous capabilities. It provides a range of functionalities that can be easily integrated into various projects.
+turbopot is a versatile tool that offers both a command-line interface and a web server for AI-powered content generation and speech synthesis. It leverages OpenAI's GPT models for text generation and text-to-speech capabilities, providing a range of functionalities that can be easily integrated into various projects.
 
 Repository: https://github.com/htelsiz/turbopot.git
 
 ## 🚀 Features
 
-- 📝 AI-powered content generation for various types (e.g., blogs, poems, stories)
-- 🗣️ Text-to-speech conversion with multiple voice options
-- 🎚️ High-quality audio generation option
-- 🖥️ Command-line interface for quick generation
-- 🌐 Web API for integration into other applications
-- 🎙️ Audio transcription from files or microphone input
+- 📝 AI-powered content generation for various types (e.g., blogs, poems, stories) using GPT models
+- 🗣️ Text-to-speech conversion with multiple voice options using OpenAI's TTS models
+- 🎚️ High-quality audio generation option for enhanced speech output
+- 🖥️ Command-line interface for quick content generation and audio synthesis
+- 🌐 Web API for integration into other applications, built with FastAPI
+- 🎙️ Audio transcription from files or microphone input using OpenAI's Whisper model
+
+## 🧠 How It Works
+
+turbopot utilizes several key components to provide its functionality:
+
+1. **Content Generation**: Uses OpenAI's GPT models to generate text content based on user prompts and specified content types.
+2. **Text-to-Speech**: Converts generated text to speech using OpenAI's TTS models, with options for different voices and quality levels.
+3. **Audio Transcription**: Employs OpenAI's Whisper model to transcribe audio files or live microphone input.
+4. **Streaming Responses**: Implements asynchronous streaming for both text and audio generation, allowing for real-time output.
+5. **CLI and Web API**: Offers both a command-line interface and a FastAPI-based web server for flexible usage.
+
+### Key Components:
+
+- `ContentGenerator` class in `api.py`: Handles interaction with OpenAI's API for text generation, speech synthesis, and transcription.
+- `generate_spoken_content_stream` function: Orchestrates the process of generating content and converting it to speech.
+- FastAPI routes in `main.py`: Provide web API endpoints for content generation and transcription.
+- Typer CLI commands in `main.py`: Offer command-line functionality for various features.
+
+### Data Flow:
+
+1. User input (prompt, content type, etc.) is received via CLI or API.
+2. The input is processed and sent to OpenAI's GPT model for text generation.
+3. Generated text is streamed back and optionally sent to OpenAI's TTS model for speech synthesis.
+4. Audio data is streamed back and can be played or saved to a file.
+5. For transcription, audio input is processed by OpenAI's Whisper model to produce text output.
+
+This architecture allows for efficient, stream-based processing of large amounts of text and audio data, making turbopot suitable for various applications requiring AI-generated content and speech synthesis.
 
 ## Prerequisites
 
