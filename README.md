@@ -15,7 +15,7 @@ Repository: https://github.com/htelsiz/turbopot.git
 
 ## 🧠 How It Works
 
-turbopot utilizes several key components to provide its functionality:
+turbopot uses several key components to provide its functionality:
 
 1. **Content Generation**: Uses OpenAI's GPT models to generate text content based on user prompts and specified content types.
 2. **Text-to-Speech**: Converts generated text to speech using OpenAI's TTS models, with options for different voices and quality levels.
